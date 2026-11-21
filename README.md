@@ -46,6 +46,18 @@ ContrataMYPE responde:
 
 Los archivos crudos no se commitean. La procedencia, hashes y perfil se documentan en `data/raw/README.md` y `docs/`.
 
+## Hallazgos 2025
+
+- **59,141 procesos** por **S/ 66.62 mil millones**; **34,486 (58.3%)** son
+  compatibles con la heurística MYPE, pero suman solo **S/ 2.95 mil millones
+  (4.4% del valor)**.
+- `goods` y `services` concentran la MYPE (67.8% y 63.6% de sus procesos);
+  `works` queda fuera de la regla y explica la brecha de monto.
+- Lima tiene el 27.6% de los procesos y el 43.1% del monto; Cusco, Puno y
+  Ayacucho muestran mayor proporción MYPE.
+- 4,952 procesos (8.4%) traen monto 0 (“no informado”), no gratuito.
+- Detalle y SQL de reproducción en [`docs/market-findings-2025.md`](docs/market-findings-2025.md).
+
 ## Arquitectura
 
 ```mermaid

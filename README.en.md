@@ -57,6 +57,17 @@ ContrataMYPE answers:
 Raw files are never committed. Provenance, hashes and profile live in
 `data/raw/README.md` and `docs/`.
 
+## 2025 findings
+
+- **59,141 processes** worth **S/ 66.62 billion**; **34,486 (58.3%)** match the
+  MYPE heuristic but account for only **S/ 2.95 billion (4.4% of value)**.
+- `goods` and `services` carry the MYPE share (67.8% and 63.6% of their
+  processes); `works` is excluded from the rule and explains the value gap.
+- Lima has 27.6% of processes and 43.1% of value; Cusco, Puno and Ayacucho show
+  higher MYPE shares.
+- 4,952 processes (8.4%) report amount 0 (“not reported”), not free work.
+- Details and reproduction SQL in [`docs/market-findings-2025.md`](docs/market-findings-2025.md).
+
 ## Architecture
 
 ```mermaid
