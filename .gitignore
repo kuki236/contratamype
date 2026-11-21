@@ -35,3 +35,6 @@ dashboard/**/.pbi/
 
 # Python packaging
 *.egg-info/
+
+# Release bundles
+dist/
