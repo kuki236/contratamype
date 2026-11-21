@@ -20,7 +20,8 @@ flowchart LR
 ```
 
 La regla MYPE se calcula **una sola vez** en el pipeline (`mype_fit`). La web y
-Power BI la leen; no la duplican.
+Power BI la leen; no la duplican. Un monto 0 o ausente no se marca compatible:
+no se puede evaluar el monto.
 
 ## 2. Componentes
 

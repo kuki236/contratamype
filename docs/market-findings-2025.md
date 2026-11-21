@@ -121,7 +121,7 @@ FROM tenders WHERE segmentation_year = 2025 GROUP BY 1 ORDER BY 2 DESC;
 Los números corresponden al snapshot con SHA-256
 `65444cad90df5c559584d75124884734bff2875616de716d949aa5b858bd160b`.
 Un nuevo bulk puede cambiar los conteos; el manifest del run conserva la
-procedencia.
+procedencia. Las métricas se regeneran con `python tools/snapshot_metrics.py`.
 
 ## 9. Límites
 
