@@ -1,7 +1,8 @@
 # ROADMAP — ContrataMYPE
 
 > **Regla:** no se avanza de fase sin el E2E de la fase y su artefacto verificable.
-> **Estado:** Fase 0 (docs) en curso; Fase 1 (audit) arranca con el bulk 2025.
+> **Estado:** v1.0.0 en preparación. Fases 0–2, 4 y 6 cerradas; Fase 3 (Power BI), Fase 5 (evaluación LLM) y Fase 7 (release) en integración.
+> **Tests:** `pytest -m fast` después de cada cambio; `pytest -m slow` solo en checkpoint/release.
 
 ## Fase 0 — Documentos y boundaries
 
