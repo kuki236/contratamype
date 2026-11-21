@@ -68,7 +68,7 @@ flowchart LR
     bulk[OCDS bulk 2025\nJSONL.gz] --> ingest[Python ingest\nPolars/DuckDB]
     api[API OCDS\nspot-check] --> ingest
     ingest --> normalize[Normalización\nOCDS → star schema]
-    normalize --> quality[Calidad\n10–12 checks]
+    normalize --> quality[Calidad\n12 checks]
     quality --> duck[(DuckDB v1.0)]
     quality --> pq[Parquet/CSV]
     pq --> pbi[Power BI\nPBIP/PBIX]
@@ -138,7 +138,7 @@ red; no se simula). Un `fail` bloquea exports; un `warn` se reporta. El bulk
 
 ### Pipeline
 - Escenario medio-difícil: un mes/departamento con **duplicados, monto 0, fecha inicio=fin, award sin contrato, proveedor sin dirección y un registro con categoría inválida**.
-- El E2E exige que las 10–12 validaciones detecten exactamente lo inyectado, que el gate bloquee/publicar según corresponda y que el artefacto (`quality_report.json`, `run_manifest.json`, `checksums.sha256`) sea verificable.
+- El E2E exige que las 12 validaciones detecten exactamente lo inyectado, que el gate bloquee/publicar según corresponda y que el artefacto (`quality_report.json`, `run_manifest.json`, `checksums.sha256`) sea verificable.
 - El dataset de prueba se genera determinista; el bulk real se usa en local, no en CI.
 
 ### Web

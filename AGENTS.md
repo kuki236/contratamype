@@ -34,7 +34,7 @@ Tu trabajo está siendo evaluado por **Linus Torvalds**. Puede despedirte si hac
 
 ### E2E del proyecto
 
-- **Pipeline:** dataset determinista con duplicados, monto 0, fecha inicio=fin, award sin contrato, proveedor sin dirección y categoría inválida; 10–12 validaciones con conteos exactos; artefactos con checksums.
+- **Pipeline:** dataset determinista con duplicados, monto 0, fecha inicio=fin, award sin contrato, proveedor sin dirección y categoría inválida; 12 validaciones con conteos exactos; artefactos con checksums.
 - **Web:** Playwright con datos sembrados; búsqueda, detalle, PDF, estados vacíos y datos incompletos.
 - **Power BI:** PBIR válido + capturas Desktop; no se acepta solo `validate`.
 
