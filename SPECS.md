@@ -166,11 +166,11 @@ Cada check produce conteos y una muestra de fallos; el reporte se publica como a
 ## 11. Criterios de aceptación v1.0.0
 
 - [x] Audit 2025 con conteos, calidad, SHA-256 y decisión de ventana.
-- [ ] Pipeline E2E con escenario medio-difícil y artefactos verificables.
-- [ ] Postgres/Parquet con star schema y 10–12 validaciones.
+- [x] Pipeline E2E con escenario medio-difícil y artefactos verificables.
+- [x] DuckDB/Parquet con star schema y 12 validaciones (PostgreSQL 17 diferido; ADR-0001).
 - [ ] Power BI PBIP/PBIX validado y capturado.
-- [ ] Web Next.js con búsqueda, detalle, MYPE fit, checklist/PDF y disclaimers.
+- [x] Web Next.js con búsqueda, detalle, MYPE fit, checklist/PDF y disclaimers.
 - [ ] LLM acotado o fallback plantilla, con evaluación y citas.
-- [ ] Alertas digest + adaptador Power Automate (o documentado).
-- [ ] README ES/EN, data dictionary, architecture, SPECS/ROADMAP/CODESTYLE/AGENTS.
+- [x] Alertas digest + adaptador Power Automate (o documentado).
+- [x] README ES/EN, data dictionary, architecture, SPECS/ROADMAP/CODESTYLE/AGENTS.
 - [ ] Release v1.0.0 con artefactos y checksums.
