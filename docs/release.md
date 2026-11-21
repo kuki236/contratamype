@@ -13,11 +13,11 @@ remoto, se publican los mismos archivos como assets.
 
 ## 2. Secuencia
 
-```bash
+```powershell
 # 1. Pipeline real
-python -m contratamype run \
-  --input data/raw/ocds/2025.jsonl.gz \
-  --artifacts artifacts/2025 \
+python -m contratamype run `
+  --input data/raw/ocds/2025.jsonl.gz `
+  --artifacts artifacts/2025 `
   --db data/processed/contratamype.duckdb
 
 # 2. Tests completos (solo en checkpoint/release)
@@ -26,21 +26,18 @@ pytest -m "fast or slow"
 # 3. Bundle
 python scripts/build_release.py --version v1.0.0
 
-# 4. Verificar checksums
-python - <<'PY'
-from pathlib import Path
-import hashlib
-root = Path("dist/v1.0.0")
-for line in (root / "SHA256SUMS").read_text(encoding="utf-8").splitlines():
-    digest, name = line.split("  ", 1)
-    actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
-    assert actual == digest, name
-print("checksums OK")
-PY
+# 4. Verificar el bundle (exit 1 si algo falla)
+python scripts/verify_release.py --root dist/v1.0.0
 
 # 5. Tag local
 git tag -a v1.0.0 -m "ContrataMYPE v1.0.0"
 ```
+
+`build_release.py` valida y verifica los artefactos del pipeline antes de
+reemplazar el bundle anterior; si algo falla, el bundle previo queda intacto.
+`verify_release.py` revisa `SHA256SUMS`, los archivos requeridos, la ausencia de
+`data/raw` y `.env`, e imprime un resumen JSON con `ok`, `files`,
+`checksums_verified` y `errors`.
 
 ## 3. Contenido esperado
 
@@ -57,8 +54,8 @@ El bundle **no** incluye el bulk crudo, la base DuckDB ni secretos.
 ## 4. Criterios de aceptación
 
 - [ ] `pytest -m "fast or slow"` verde.
-- [ ] Gate abierto (0 fails) y `run_manifest.json` con SHA del bulk.
-- [ ] `checksums.sha256` recomputado coincide.
+- [ ] Gate abierto (0 fails) y `run_manifest.json` con SHA del bulk válido.
+- [ ] `scripts/verify_release.py --root dist/v1.0.0` retorna 0 y `checksums_verified` cubre todo el bundle.
 - [ ] Web: búsqueda, detalle, checklist/PDF y estado vacío probados con Playwright.
 - [ ] Power BI: `powerbi-report-author validate` 0/0 y capturas de ambas páginas.
 - [ ] Digest real: primera corrida envía, segunda envía 0.
