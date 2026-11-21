@@ -53,8 +53,10 @@ Las MYPEs peruanas no acceden a compras públicas por tres barreras: no encuentr
 - Beta; usar para spot-checks y meses recientes, no para el volumen principal.
 
 ### Ventana
-- **Auditoría:** 2025 completo.
-- **v1.0.0:** 2025 o 2024–2025, decidido con el perfil (volumen, calidad, cobertura y tiempo de proceso). No se promete 2018–2025.
+- **Auditoría 2025:** 124,538 actualizaciones; cohorte `dataSegmentation` 2025 = **59,141 procesos**.
+- **v1.0.0:** cohorte 2025 (59,141). Los 124,538 se cargan con `segmentation_year` para búsqueda/historia, pero el dashboard y el buscador filtran 2025 por defecto.
+- **2024–2025:** v1.1; requiere el bulk 2024 y deduplicar OCIDs entre snapshots.
+- No se promete 2018–2025.
 
 ### Problemas de calidad conocidos
 Postores duplicados, estados vacíos, montos en 0, `tenderPeriod` con inicio = fin, proveedores sin dirección, adjudicaciones/contratos no siempre vinculados y API beta. Se medirán y reportarán; no se ocultarán.
@@ -103,7 +105,7 @@ mype_fit = amount_pen <= threshold
            AND category IN target_categories
            AND department IN target_departments
 ```
-- `threshold` se elige con la distribución real del audit; no se hardcodea.
+- `threshold` default propuesto: **S/ 200,000** (59.7% de la cohorte 2025), configurable; se elige con la distribución real y no se hardcodea.
 - La etiqueta es **“compatible”**, no elegibilidad legal. Disclaimer visible.
 - Se documenta la regla y se puede cambiar por configuración.
 
@@ -160,7 +162,7 @@ Cada check produce conteos y una muestra de fallos; el reporte se publica como a
 
 ## 11. Criterios de aceptación v1.0.0
 
-- [ ] Audit 2025 con conteos, calidad, SHA-256 y decisión de ventana.
+- [x] Audit 2025 con conteos, calidad, SHA-256 y decisión de ventana.
 - [ ] Pipeline E2E con escenario medio-difícil y artefactos verificables.
 - [ ] Postgres/Parquet con star schema y 10–12 validaciones.
 - [ ] Power BI PBIP/PBIX validado y capturado.

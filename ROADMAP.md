@@ -17,17 +17,24 @@
 
 ## Fase 1 — Auditoría de datos 2025
 
-- [ ] Descargar el bulk 2025 (`2025.jsonl.gz`, ~148.7 MB) y registrar SHA-256.
-- [ ] Perfilar: procesos, OCIDs únicos, fechas, categorías, departamentos, compradores, proveedores, awards, contracts.
-- [ ] Medir calidad: nulos, montos 0, duplicados, fechas inicio=fin, awards/contracts sin vínculo, proveedores sin dirección.
-- [ ] Analizar distribución de montos para elegir el umbral MYPE.
-- [ ] Decidir ventana v1.0.0: 2025 solo o 2024–2025.
-- [ ] Escribir `docs/data-profile-2025.md` y `data/raw/README.md` (procedencia).
-- [ ] Spot-check API vs bulk en un mes.
+- [x] Descargar el bulk 2025 (`2025.jsonl.gz`, 148,719,573 bytes) y registrar SHA-256 (`65444cad…160b`).
+- [x] Perfilar: 124,538 actualizaciones, 2,994 compradores, 56,734 proveedores, 174,101 postores.
+- [x] Medir calidad: montos 0, período inicio=fin, awards sin proveedor, etc.
+- [x] Analizar distribución de montos y elegir el umbral MYPE propuesto (S/ 200,000, configurable).
+- [x] Decidir ventana v1.0.0: cohorte `dataSegmentation` 2025 = **59,141 procesos**; 2024–2025 a v1.1.
+- [x] Escribir `docs/data-profile-2025.md`, `docs/data-profile-2025.json`, `docs/cohort-2025.json` y `data/raw/README.md`.
+- [x] Spot-check API vs bulk: 20 registros, 9 encontrados, 0 diferencias; 11 ausentes porque la API está más fresca.
+
+**Evidencia del checkpoint:**
+
+- Bulk: 148,719,573 bytes; SHA-256 `65444cad90df5c559584d75124884734bff2875616de716d949aa5b858bd160b`.
+- Global: 124,538 procesos actualizados; 59,141 en la cohorte 2025; 47,115 awards; 42,650 contratos.
+- Cohorte: mediana S/ 145,694.87; 59.7% ≤ S/ 200k; 8.4% con monto 0; 93.3% con período inicio=fin.
+- Herramientas: `tools/audit_ocds.py` y `tools/audit_cohort_2025.py` (streaming, stdlib).
 
 **E2E del checkpoint:**
-- El perfil se regenera desde el bulk con un comando y produce un JSON/Markdown con conteos y checksums.
-- El bulk no se commitea; el README y el perfil sí.
+- El perfil se regenera desde el bulk con dos comandos y produce JSON/Markdown con el SHA-256 del input.
+- El bulk no se commitea; el README y los perfiles sí.
 
 **Criterio:** números reales, no estimaciones; decisión de ventana documentada.
 

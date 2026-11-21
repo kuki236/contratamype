@@ -4,7 +4,7 @@
 
 ContrataMYPE convierte las contrataciones abiertas del OECE (estándar OCDS) en un buscador de oportunidades para micro y pequeñas empresas, un checklist de participación y un dashboard reproducible del mercado de compras públicas del Perú.
 
-> **Estado:** v0.1.0 — auditoría de datos 2025 en curso. El producto v1.0.0 se construye por checkpoints; ver [`ROADMAP.md`](ROADMAP.md).
+> **Estado:** v0.1.0 — auditoría de datos 2025 completada (124,538 actualizaciones; cohorte 2025 de 59,141). Pipeline y producto en construcción; ver [`ROADMAP.md`](ROADMAP.md).
 
 ---
 
@@ -40,7 +40,7 @@ ContrataMYPE responde:
 
 - **OCDS / OECE** — Portal de Contrataciones Abiertas.
 - Bulk anual JSONL: `https://data.open-contracting.org/es/publication/135/download?name=2025.jsonl.gz`
-- 2025: **148.7 MB comprimido**, CC BY 4.0.
+- 2025: **148.7 MB comprimido**, CC BY 4.0; **124,538 actualizaciones**, cohorte 2025 **59,141**.
 - API: `https://contratacionesabiertas.oece.gob.pe/api/v1` (beta; 20 procesos/página).
 - Campos: `ocid`, comprador, `parties` (RUC/departamento), `tender` (título, descripción, categoría, método, valor, fechas), `awards`, `contracts`.
 
