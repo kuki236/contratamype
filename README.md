@@ -80,6 +80,19 @@ flowchart LR
 Power BI (PBIP/PBIX), Playwright, pytest, Ruff. Local-first; PostgreSQL queda
 como adaptador pendiente (ver `docs/architecture.md`).
 
+## Estructura del repositorio
+
+| Ruta | Contenido |
+|---|---|
+| `contratamype/` | Ingesta OCDS, normalización, DuckDB, 12 checks, exports y digest |
+| `api/` | API FastAPI read-only sobre DuckDB |
+| `web/` | Next.js App Router, búsqueda, detalle, checklist y PDF |
+| `dashboard/` | PBIP/PBIX y capturas de Power BI |
+| `tests/e2e/` | E2E de pipeline, alertas y release |
+| `tools/` | Auditorías y muestras reproducibles |
+| `docs/` | Decisiones, diccionario, calidad, hallazgos y límites |
+| `data/raw/`, `data/processed/`, `artifacts/` | Datos y artefactos locales (gitignored) |
+
 ## Documentación
 
 - [`SPECS.md`](SPECS.md) — alcance y contrato del producto.
@@ -115,6 +128,19 @@ python -m contratamype digest --artifacts artifacts/2025 --since 2025-01-01
 pytest -m fast
 pytest -m slow
 ```
+
+## Testing
+
+| Tier | Comando | Cuándo | Cobertura |
+|---|---|---|---|
+| Fast | `pytest -m fast` | Después de cada cambio; segundos | Fixtures deterministas, gate, exports, digest, release |
+| Slow | `pytest -m slow` | Solo checkpoint/release; ~25 s | Bulk 2025 real (local, gitignored) |
+| Full | `pytest -m "fast or slow"` | Antes de cerrar release | Fast + slow |
+| Web | `cd web && npx playwright test` | Al tocar web/API | 8 E2E con seed determinista |
+| Power BI | `powerbi-report-author validate` + capturas | Al tocar dashboard | PBIR/PBIP y evidencia visual |
+
+`pytest.ini` excluye `slow` por defecto. El CI corre solo `pytest -m fast`; el bulk
+nunca se sube al repo.
 
 ## Calidad y límites
 
