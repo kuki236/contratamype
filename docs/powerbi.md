@@ -52,7 +52,7 @@ pipeline y aquí se lee, no se recalcula.
 El modelo usa el parámetro de Power Query `DataFolder`:
 
 ```text
-C:\Users\sebas\Desktop\practicas\projects\contratamype\artifacts\2025
+C:\contratamype\artifacts\2025
 ```
 
 Está en
