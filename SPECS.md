@@ -114,21 +114,25 @@ mype_fit = amount_pen > 0
 
 ## 7. Calidad de datos
 
-10–12 validaciones, como mínimo:
-1. schema/campos obligatorios por registro;
-2. `ocid` único y no nulo;
-3. fechas parseables y en rango;
-4. montos no negativos; `0` se reporta como no informado;
-5. categoría en `{goods, services, works}`;
-6. departamento en los 25 departamentos;
-7. comprador con nombre/id;
-8. awards con proveedor y monto, o estado explícito;
-9. contracts vinculados a award cuando exista;
-10. duplicados de postores/proveedores;
-11. cobertura de meses/regiones;
-12. consistencia API vs bulk en una muestra.
+12 checks, cada uno con conteo y hasta 5 filas de muestra:
 
-Cada check produce conteos y una muestra de fallos; el reporte se publica como artefacto con checksums.
+1. `raw_schema_present` (fail): parseo, OCID, tender y título.
+2. `ocid_unique` (fail).
+3. `buyer_present` (fail): id o nombre.
+4. `category_valid` (fail): `{goods, services, works}`.
+5. `department_valid` (fail): código de los 25 departamentos.
+6. `dates_valid` (fail): fechas inválidas; las ausentes no bloquean.
+7. `period_quality` (warn): período ausente o inicio = fin.
+8. `amount_non_negative` (fail).
+9. `amount_zero` (warn): monto 0 = no informado.
+10. `award_complete` (warn): proveedor ausente, o monto ausente sin estado.
+11. `contract_award_linked` (warn): award vacío o colgante.
+12. `supplier_address_present` (warn): dirección de proveedor ausente en la fuente.
+
+Auditorías no bloqueantes: `month_coverage`, `region_coverage`,
+`duplicate_parties` y `api_vs_bulk_spot_check` (esta última queda `not_run` sin
+red; no se simula). Un `fail` bloquea exports; un `warn` se reporta. El bulk
+2025 cierra con **7 pass, 5 warn, 0 fail**. El reporte se publica con checksums.
 
 ## 8. E2E (definir antes de implementar)
 

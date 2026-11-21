@@ -35,7 +35,7 @@ ContrataMYPE answers:
 
 - **Next.js web app** with text, region, category, amount and status filters.
 - **Opportunity detail** with buyer, object, value, dates, category and official links.
-- **MYPE fit** heuristic (amount + category + region), labelled “compatible”,
+- **MYPE fit** heuristic (amount > 0 + category + region), labelled “compatible”,
   never as legal eligibility.
 - **Checklist/PDF** with steps and documents.
 - **LLM explainer** limited to official fields, with citations and disclaimer;

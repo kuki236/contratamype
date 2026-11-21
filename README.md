@@ -29,7 +29,7 @@ ContrataMYPE responde:
 
 - **Web app Next.js** con búsqueda por texto, región, rubro, categoría, monto y estado.
 - **Detalle de oportunidad** con entidad, objeto, valor, fechas, categoría y enlaces oficiales.
-- **MYPE fit** heurístico (monto + rubro + región), etiquetado como “compatible”, nunca como elegibilidad legal.
+- **MYPE fit** heurístico (monto > 0 + rubro + región), etiquetado como “compatible”, nunca como elegibilidad legal.
 - **Checklist/PDF** con pasos y documentos.
 - **Explicador LLM** acotado a campos oficiales, con citas y disclaimer; fallback a plantilla si no hay API key.
 - **Dashboard Power BI** con mercado por región/rubro/monto/evolución y participación MYPE.
