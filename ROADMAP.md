@@ -97,9 +97,12 @@
 
 ## Fase 6 — Alertas
 
-- [ ] Digest CSV/email de oportunidades nuevas compatibles.
-- [ ] Adaptador Power Automate si hay licencia; si no, flujo documentado y simulable.
-- [ ] Registro de alertas enviadas y no duplicadas.
+- [x] Digest CSV/email de oportunidades nuevas compatibles.
+- [x] Adaptador Power Automate si hay licencia; si no, flujo documentado y simulable.
+- [x] Registro de alertas enviadas y no duplicadas.
+
+**Evidencia del checkpoint:**
+- `python -m contratamype digest` escribe CSV/JSON con `csv_sha256`, estado deduplicado y falla si el gate está bloqueado. Adaptador Power Automate documentado en `docs/alerts.md`; sin licencia confirmada, se simula localmente.
 
 **E2E del checkpoint:**
 - Un conjunto de oportunidades nuevas genera un digest determinista; no se repiten alertas.
