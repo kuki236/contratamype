@@ -4,7 +4,7 @@
 
 ContrataMYPE convierte las contrataciones abiertas del OECE (estándar OCDS) en un buscador de oportunidades para micro y pequeñas empresas, un checklist de participación y un dashboard reproducible del mercado de compras públicas del Perú.
 
-> **Estado:** v0.1.0 — auditoría de datos 2025 completada (124,538 actualizaciones; cohorte 2025 de 59,141). Pipeline y producto en construcción; ver [`ROADMAP.md`](ROADMAP.md).
+> **Estado:** v1.0.0 en preparación — pipeline OCDS, calidad y digest de alertas cerrados; dashboard Power BI y web Next.js en integración. Ver [`ROADMAP.md`](ROADMAP.md) para la evidencia por fase.
 
 ---
 
@@ -51,35 +51,57 @@ Los archivos crudos no se commitean. La procedencia, hashes y perfil se document
 ```mermaid
 flowchart LR
     bulk[OCDS bulk 2025] --> ingest[Python ingest]
-    api[API OCDS] --> ingest
+    api[API OCDS] -. spot-check .-> ingest
     ingest --> normalize[Normalización]
-    normalize --> quality[Calidad]
-    quality --> pg[(PostgreSQL 17)]
+    normalize --> duck[(DuckDB)]
+    duck --> quality[Calidad y gate]
     quality --> pq[Parquet/CSV]
     pq --> pbi[Power BI]
-    pg --> web[Next.js]
+    duck --> readapi[API read-only]
+    readapi --> web[Next.js]
     web --> llm[LLM opcional]
     web --> pdf[Checklist PDF]
     quality --> alerts[Digest/alertas]
 ```
 
-**Stack:** Python 3.13, Polars/DuckDB, PostgreSQL 17, Next.js (App Router, TypeScript), Power BI (PBIP/PBIX), Playwright, pytest, Ruff, GitHub Actions.
+**Stack:** Python 3.13, DuckDB/PyArrow, FastAPI, Next.js (App Router, TypeScript),
+Power BI (PBIP/PBIX), Playwright, pytest, Ruff. Local-first; PostgreSQL queda
+como adaptador pendiente (ver `docs/architecture.md`).
 
-## Demo
+## Documentación
 
-> Capturas y URL local se completan al cerrar la Fase 4. No se inventan resultados.
+- [`SPECS.md`](SPECS.md) — alcance y contrato del producto.
+- [`ROADMAP.md`](ROADMAP.md) — fases, evidencia y checkpoints.
+- [`docs/architecture.md`](docs/architecture.md) — componentes y ADRs.
+- [`docs/data-dictionary.md`](docs/data-dictionary.md) — granos y campos.
+- [`docs/quality-checks.md`](docs/quality-checks.md) — 12 checks y gate.
+- [`docs/market-findings-2025.md`](docs/market-findings-2025.md) — hallazgos reales.
+- [`docs/alerts.md`](docs/alerts.md) — digest y Power Automate.
+- [`docs/release.md`](docs/release.md) — bundle y tag local.
 
-## Cómo correrlo (se completa por fase)
+## Cómo correrlo
 
 ```bash
-# Fase 1: auditoría
-python tools/audit_ocds.py --input data/raw/ocds/2025.jsonl.gz
+# 0. Entorno
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 
-# Fase 2: pipeline
-python -m contratamype run --year 2025
+# 1. Pipeline (bulk local, gitignored)
+python -m contratamype run \
+  --input data/raw/ocds/2025.jsonl.gz \
+  --artifacts artifacts/2025 \
+  --db data/processed/contratamype.duckdb
 
-# Fase 4: web
+# 2. API y web (ver docs/web.md)
+uvicorn api.main:app --port 8000
 cd web && npm install && npm run dev
+
+# 3. Alertas
+python -m contratamype digest --since 2025-01-01
+
+# 4. Tests: rápido por defecto; lento solo en checkpoint
+pytest -m fast
+pytest -m slow
 ```
 
 ## Calidad y límites
