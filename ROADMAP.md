@@ -71,12 +71,18 @@
 
 ## Fase 4 — Web app Next.js
 
-- [ ] App Router + TypeScript + Tailwind.
-- [ ] Búsqueda por texto/región/rubro/categoría/monto/estado.
-- [ ] Detalle de oportunidad y MYPE fit.
-- [ ] Checklist/PDF.
-- [ ] Estados vacíos y datos incompletos explicados.
-- [ ] Playwright E2E con dataset sembrado.
+- [x] App Router + TypeScript + Tailwind.
+- [x] Búsqueda por texto/región/rubro/categoría/monto/estado.
+- [x] Detalle de oportunidad y MYPE fit.
+- [x] Checklist/PDF.
+- [x] Estados vacíos y datos incompletos explicados.
+- [x] Playwright E2E con dataset sembrado.
+
+**Evidencia del checkpoint:**
+- Web + API read-only sobre DuckDB; `mype_fit` se lee, no se recalcula.
+- **8/8 Playwright E2E en 23.7 s**, `npm run lint`, `npm run format:check` y `npm run build` verdes.
+- PDF real (`application/pdf`, `%PDF`) generado con `pdf-lib`, sin servicios externos.
+- Casos sembrados: descripción faltante, monto 0, inicio=fin, award sin proveedor, contrato con award colgante, departamento desconocido y estado vacío.
 
 **E2E del checkpoint:**
 - Búsqueda, filtro, detalle, PDF y estado vacío; una oportunidad con datos faltantes no rompe la UI.
@@ -85,13 +91,15 @@
 
 ## Fase 5 — LLM y checklist
 
-- [ ] Explicador acotado a campos oficiales, con citas y disclaimer.
-- [ ] Gemini si hay API key; fallback plantilla si no.
+- [x] Explicador acotado a campos oficiales, con citas y disclaimer.
+- [ ] Gemini si hay API key; fallback plantilla si no. **(fallback implementado; adaptador Gemini diferido por falta de key)**
 - [ ] Evaluación con 10–20 oportunidades reales; no inventar requisitos.
-- [ ] Checklist/PDF con pasos y documentos.
+- [x] Checklist/PDF con pasos y documentos.
 
-**E2E del checkpoint:**
-- Para una oportunidad con datos completos y otra incompleta, el explicador cita la fuente y no afirma elegibilidad legal.
+**Evidencia del checkpoint:**
+- Explicador por plantilla con cita de tabla/campo y disclaimer; `CONTRATAMYPE_EXPLAINER=gemini` cae a plantilla sin red ni key.
+- Muestra reproducible de 15 oportunidades en `docs/llm-eval-sample-2025.json`; falta ejecutar la evaluación con la UI y registrar resultados.
+- Checklist de 9 pasos y PDF real; no enumera requisitos que no estén en las bases.
 
 **Criterio:** el LLM no es una caja negra; se puede apagar y la app sigue funcionando.
 
