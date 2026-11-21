@@ -3,7 +3,17 @@ name = "contratamype"
 version = "0.1.0"
 description = "Public procurement search, explanations and market dashboard for Peruvian MYPEs."
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["duckdb>=1.1", "pyarrow>=18"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3", "ruff>=0.8"]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["contratamype"]
 
 [tool.ruff]
 line-length = 100

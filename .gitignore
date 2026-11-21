@@ -32,3 +32,6 @@ dashboard/**/.pbi/
 
 # Logs
 *.log
+
+# Python packaging
+*.egg-info/

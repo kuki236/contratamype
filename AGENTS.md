@@ -38,6 +38,19 @@ Tu trabajo está siendo evaluado por **Linus Torvalds**. Puede despedirte si hac
 - **Web:** Playwright con datos sembrados; búsqueda, detalle, PDF, estados vacíos y datos incompletos.
 - **Power BI:** PBIR válido + capturas Desktop; no se acepta solo `validate`.
 
+### Tiers de test — rápido vs lento (obligatorio)
+
+No corras la suite entera en cada cambio. El default es rápido:
+
+| Tier | Comando | Cuándo | Qué cubre |
+|---|---|---|---|
+| **Fast** | `pytest -m fast` | Después de **cada cambio**; segundos | Fixtures deterministas del pipeline, quality report, gate, exports y CLI. Sin bulk. |
+| **Slow** | `pytest -m slow` | Solo en un **checkpoint** o antes de release; minutos | Bulk 2025 real (124,538 actualizaciones / 59,141 cohorte). Local; el bulk está gitignored. |
+| **Full** | `pytest -m "fast or slow"` | Antes de cerrar un checkpoint/release | Fast + slow. No en cada edición. |
+| **Power BI** | `powerbi-report-author validate ...` + capturas | Al tocar el dashboard | PBIR/PBIP, Desktop y screenshots. |
+
+`pytest.ini` excluye `slow` por defecto (`addopts = -m "not slow"`). CI corre solo fast; el bulk es local. Si un test lento no puede correr (bulk ausente), se salta con un mensaje explícito, no se borra.
+
 ## 4. Boundaries
 
 - `pipeline/` (Python) es la única fuente del modelo y la calidad.

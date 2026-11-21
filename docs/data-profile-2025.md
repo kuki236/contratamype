@@ -100,7 +100,14 @@ python tools/audit_cohort_2025.py \
 
 Artefactos: `docs/data-profile-2025.json`, `docs/data-profile-2025.md` y `docs/cohort-2025.json`. El SHA-256 del bulk está en ambos JSON.
 
-## 8. Limitaciones
+## 8. Integridad referencial contracts → awards (bulk completo)
+
+- **5,128 de 107,301 contratos (4.8%)** referencian un `awardID` que no aparece en el `compiledRelease`, distribuidos en 3,855 OCIDs.
+- El 100% de los contratos trae `awardID` no vacío (`contracts_without_award = 0` en la cohorte); la brecha es de referencia, no de campo.
+- **Decisión:** `contract_award_linked` es un check **warn**, no bloqueante. El snapshot no permite reconstruir el award faltante y fabricarlo violaría la fuente. El conteo y la muestra quedan en `quality_report.json`; la app debe mostrar el contrato sin inventar proveedor.
+- Los checks **fail** que bloquean exports son: esquema raw, OCID único, título, categoría, departamento, comprador, monto no negativo y fechas parseables.
+
+## 9. Limitaciones
 
 - Un solo año y un snapshot de actualizaciones; no es una serie histórica limpia.
 - Fechas de plazo incompletas o con inicio = fin.

@@ -40,11 +40,16 @@
 
 ## Fase 2 — Pipeline, modelo y calidad
 
-- [ ] Ingesta OCDS → normalización → star schema.
-- [ ] PostgreSQL 17 para la app; Parquet/CSV para Power BI.
-- [ ] 10–12 validaciones con reporte y gate.
-- [ ] `run_manifest.json` con SHA-256 del bulk y checksums de los payloads.
-- [ ] E2E con escenario medio-difícil (duplicados, monto 0, fecha inicio=fin, award sin contrato, proveedor sin dirección, categoría inválida).
+- [x] Ingesta OCDS → normalización → star schema.
+- [x] Star schema en DuckDB y exports Parquet/CSV para Power BI.
+- [ ] PostgreSQL 17 para la app (se resuelve en Fase 4).
+- [x] 10–12 validaciones con reporte y gate.
+- [x] `run_manifest.json` con SHA-256 del bulk y checksums de los payloads.
+- [x] E2E con escenario medio-difícil (duplicados, monto 0, fecha inicio=fin, award sin contrato, proveedor sin dirección, categoría inválida).
+
+**Evidencia del checkpoint:**
+- Bulk completo en **22.9 s**: 124,538 actualizaciones, 59,141 cohorte 2025, 34,486 oportunidades MYPE; gate abierto con 0 fails y 4 warns.
+- Fast tier: 3 passed en 1.3 s. Slow tier: 1 passed en 22.8 s. El bulk nunca se commitea.
 
 **E2E del checkpoint:**
 - Las 10–12 validaciones detectan exactamente lo inyectado; el gate bloquea/publica según corresponda; los artefactos se recomputan y coinciden.

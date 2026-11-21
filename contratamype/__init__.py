@@ -1,0 +1,1 @@
+"""ContrataMYPE data pipeline."""
