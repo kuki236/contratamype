@@ -62,7 +62,7 @@ def test_release_bundle_is_complete_and_verifiable(tmp_path: Path) -> None:
     assert (out / "artifacts" / "quality_report.json").exists()
     assert (out / "dashboard" / "dashboard.pbix").exists()
     assert (out / "dashboard" / "screenshots" / "page-1.png").exists()
-    assert (out / "docs" / "README.md").exists()
+    assert (out / "README.md").exists()
     assert not (out / "data").exists()
 
     lines = (out / "SHA256SUMS").read_text(encoding="utf-8").strip().splitlines()

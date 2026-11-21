@@ -26,13 +26,22 @@ ARTIFACT_FILES = (
     "suppliers.parquet",
 )
 
-DOC_FILES = (
+ROOT_FILES = (
     "README.md",
     "README.en.md",
+    "LICENSE",
+)
+
+DOC_FILES = (
     "docs/data-dictionary.md",
     "docs/architecture.md",
     "docs/data-profile-2025.md",
     "docs/cohort-2025.json",
+    "docs/quality-checks.md",
+    "docs/market-findings-2025.md",
+    "docs/llm-policy.md",
+    "docs/release.md",
+    "docs/user-test-v1.0.0.md",
     "docs/web.md",
     "docs/powerbi.md",
     "docs/alerts.md",
@@ -119,6 +128,12 @@ def build_release(
             raise FileNotFoundError(f"missing release artifact: {source}")
         _copy(source, out_dir / "artifacts" / name)
         copied.append(f"artifacts/{name}")
+
+    for name in ROOT_FILES:
+        source = repo_root / name
+        if source.exists():
+            _copy(source, out_dir / name)
+            copied.append(name)
 
     for name in DOC_FILES:
         source = repo_root / name
