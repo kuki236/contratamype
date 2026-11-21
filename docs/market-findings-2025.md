@@ -6,9 +6,11 @@ desde `data/processed/contratamype.duckdb`; no son proyecciones.
 ## 1. Titular
 
 - **59,141 procesos** en la cohorte 2025, por **S/ 66,624,609,619**.
-- **34,486 procesos (58.3%)** cumplen la heurística MYPE (`mype_fit`).
+- **29,921 procesos (50.6%)** cumplen la heurística MYPE (`mype_fit`).
 - Esos procesos MYPE suman **S/ 2,952,693,559**, solo **4.4% del monto total**.
 - La mediana del proceso es **S/ 145,694.87**; el 59.7% está por debajo de S/ 200,000.
+- Los **4,952 procesos con monto 0** no se marcan como compatibles: el monto no
+  se puede evaluar y la etiqueta sería engañosa.
 
 La brecha no es un error: la heurística excluye `works`, que concentra
 **S/ 40,230,411,491 (60.4%)** del valor. Las MYPE aparecen en muchos procesos
@@ -18,8 +20,8 @@ pequeños, no en los contratos grandes de infraestructura.
 
 | Categoría | Procesos | Monto (S/) | MYPE | % MYPE |
 |---|---:|---:|---:|---:|
-| goods | 26,982 | 10,710,571,940 | 18,285 | 67.8% |
-| services | 25,485 | 15,683,626,189 | 16,201 | 63.6% |
+| goods | 26,982 | 10,710,571,940 | 15,856 | 58.8% |
+| services | 25,485 | 15,683,626,189 | 14,065 | 55.2% |
 | works | 6,674 | 40,230,411,491 | 0 | 0.0% |
 
 `goods` y `services` son el espacio real de la MYPE; `works` queda fuera por
@@ -29,37 +31,37 @@ diseño de la regla v1.0, no por falta de datos.
 
 | Departamento | Procesos | Monto (S/) | MYPE | % MYPE |
 |---|---:|---:|---:|---:|
-| LIMA | 16,320 | 28,726,728,951 | 9,372 | 57.4% |
-| CUSCO | 5,052 | 3,099,411,224 | 3,582 | 70.9% |
-| ANCASH | 3,242 | 2,417,280,936 | 1,757 | 54.2% |
-| PUNO | 3,063 | 1,937,123,887 | 1,934 | 63.1% |
-| AYACUCHO | 2,875 | 1,403,822,266 | 1,965 | 68.3% |
-| JUNIN | 2,680 | 2,331,743,210 | 1,507 | 56.2% |
-| APURIMAC | 2,449 | 960,994,008 | 1,648 | 67.3% |
-| CAJAMARCA | 2,291 | 2,246,743,493 | 1,139 | 49.7% |
-| AREQUIPA | 2,192 | 1,867,969,302 | 1,226 | 55.9% |
-| LA LIBERTAD | 2,120 | 2,198,022,606 | 943 | 44.5% |
+| LIMA | 16,320 | 28,726,728,951 | 7,772 | 47.6% |
+| CUSCO | 5,052 | 3,099,411,224 | 3,210 | 63.5% |
+| ANCASH | 3,242 | 2,417,280,936 | 1,546 | 47.7% |
+| PUNO | 3,063 | 1,937,123,887 | 1,757 | 57.4% |
+| AYACUCHO | 2,875 | 1,403,822,266 | 1,759 | 61.2% |
+| JUNIN | 2,680 | 2,331,743,210 | 1,291 | 48.2% |
+| APURIMAC | 2,449 | 960,994,008 | 1,488 | 60.8% |
+| CAJAMARCA | 2,291 | 2,246,743,493 | 999 | 43.6% |
+| AREQUIPA | 2,192 | 1,867,969,302 | 1,099 | 50.1% |
+| LA LIBERTAD | 2,120 | 2,198,022,606 | 805 | 38.0% |
 
-Lima concentra el 27.6% de los procesos y el 43.1% del monto. Cusco, Puno y
-Ayacucho tienen mayor proporción MYPE que Lima; Cañete/La Libertad y Cajamarca,
-menor.
+Lima concentra el 27.6% de los procesos y el 43.1% del monto. Cusco, Ayacucho,
+Apurímac y Puno tienen mayor proporción MYPE que Lima (47.6%); La Libertad
+(38.0%) y Cajamarca (43.6%), menor.
 
 ## 4. Estacionalidad
 
 | Mes | Procesos | MYPE |
 |---|---:|---:|
-| 2025-01 | 1,056 | 532 |
-| 2025-02 | 4,481 | 2,747 |
-| 2025-03 | 7,341 | 4,599 |
-| 2025-04 | 8,329 | 4,754 |
-| 2025-05 | 3,320 | 2,210 |
-| 2025-06 | 5,318 | 3,146 |
-| 2025-07 | 5,877 | 3,143 |
-| 2025-08 | 6,458 | 3,555 |
-| 2025-09 | 6,284 | 3,417 |
-| 2025-10 | 5,982 | 3,320 |
-| 2025-11 | 3,595 | 2,253 |
-| 2025-12 | 1,095 | 808 |
+| 2025-01 | 1,056 | 433 |
+| 2025-02 | 4,481 | 2,432 |
+| 2025-03 | 7,341 | 4,017 |
+| 2025-04 | 8,329 | 4,039 |
+| 2025-05 | 3,320 | 1,226 |
+| 2025-06 | 5,318 | 2,517 |
+| 2025-07 | 5,877 | 2,930 |
+| 2025-08 | 6,458 | 3,317 |
+| 2025-09 | 6,284 | 3,198 |
+| 2025-10 | 5,982 | 3,090 |
+| 2025-11 | 3,595 | 2,049 |
+| 2025-12 | 1,095 | 672 |
 
 Abril es el pico (8,329 procesos) y diciembre el valle. Cinco registros de la
 cohorte tienen `published_date` en diciembre 2024; no se incluyen en la tabla
@@ -69,7 +71,8 @@ mensual.
 
 - **44,509 procesos (75.3%)** tienen al menos un award.
 - **40,598 procesos (68.6%)** tienen al menos un contrato.
-- **4,952 procesos (8.4%)** tienen monto 0 (no informado), no monto gratuito.
+- **4,952 procesos (8.4%)** tienen monto 0 (no informado), no monto gratuito;
+  no se marcan como compatibles porque el monto no se puede evaluar.
 - **0 procesos** tienen descripción vacía en la cohorte; el riesgo está en
   campos de plazos y awards, no en el objeto.
 

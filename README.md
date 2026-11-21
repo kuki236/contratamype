@@ -48,11 +48,13 @@ Los archivos crudos no se commitean. La procedencia, hashes y perfil se document
 
 ## Hallazgos 2025
 
-- **59,141 procesos** por **S/ 66.62 mil millones**; **34,486 (58.3%)** son
+- **59,141 procesos** por **S/ 66.62 mil millones**; **29,921 (50.6%)** son
   compatibles con la heurística MYPE, pero suman solo **S/ 2.95 mil millones
   (4.4% del valor)**.
-- `goods` y `services` concentran la MYPE (67.8% y 63.6% de sus procesos);
+- `goods` y `services` concentran la MYPE (58.8% y 55.2% de sus procesos);
   `works` queda fuera de la regla y explica la brecha de monto.
+- Los 4,952 procesos con monto 0 (“no informado”) no se marcan como compatibles:
+  no se puede evaluar el monto.
 - Lima tiene el 27.6% de los procesos y el 43.1% del monto; Cusco, Puno y
   Ayacucho muestran mayor proporción MYPE.
 - 4,952 procesos (8.4%) traen monto 0 (“no informado”), no gratuito.

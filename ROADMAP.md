@@ -49,8 +49,8 @@
 - [x] E2E con escenario medio-difícil (duplicados, monto 0, fecha inicio=fin, award sin contrato, proveedor sin dirección, categoría inválida).
 
 **Evidencia del checkpoint:**
-- Bulk completo en **22.9 s**: 124,538 actualizaciones, 59,141 cohorte 2025, 34,486 oportunidades MYPE; gate abierto con 0 fails y 4 warns.
-- Fast tier: 3 passed en 1.3 s. Slow tier: 1 passed en 22.8 s. El bulk nunca se commitea.
+- Bulk completo en **28.1 s**: 124,538 actualizaciones, 59,141 cohorte 2025, 29,921 oportunidades MYPE; gate abierto con 0 fails y 5 warns.
+- Fast tier: 28 passed en 6.1 s. Slow tier: 1 passed en 29.3 s. El bulk nunca se commitea.
 
 **E2E del checkpoint:**
 - Las 10–12 validaciones detectan exactamente lo inyectado; el gate bloquea/publica según corresponda; los artefactos se recomputan y coinciden.

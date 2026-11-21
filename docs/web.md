@@ -181,7 +181,7 @@ Resultados de la verificación local (2026-11-20):
 - `npm run build`: compila; rutas dinámicas `/`, detalle, checklist y PDF.
 - `npm run format:check`: OK.
 - `ruff format` / `ruff check`: OK.
-- Base real: `59,141` procesos de la cohorte 2025; `34,486` con `mype_fit`; búsqueda, detalle, checklist y PDF responden 200.
+- Base real: `59,141` procesos de la cohorte 2025; `29,921` con `mype_fit`; búsqueda, detalle, checklist y PDF responden 200.
 
 ## 9. Límites conocidos
 
