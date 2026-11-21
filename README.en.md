@@ -6,7 +6,7 @@ ContrataMYPE turns Peru's open contracting data (OECE, OCDS standard) into an
 opportunity search for micro and small enterprises, a participation checklist,
 and a reproducible dashboard of the public procurement market.
 
-> **Status:** v1.0.0 in preparation — 2025 cohort (59,141 processes out of 124,538 updates).
+> **Status:** v1.0.0 — local release with pipeline, web/API, dashboard, alerts and a verifiable bundle. The MYPE user test remains a pending manual validation.
 > See [`ROADMAP.md`](ROADMAP.md) for evidence per phase.
 
 ---

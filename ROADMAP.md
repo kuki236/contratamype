@@ -1,7 +1,7 @@
 # ROADMAP — ContrataMYPE
 
 > **Regla:** no se avanza de fase sin el E2E de la fase y su artefacto verificable.
-> **Estado:** v1.0.0 en preparación. Fases 0–4 y 6 cerradas; Fase 5 (evaluación LLM) y Fase 7 (release) en cierre.
+> **Estado:** v1.0.0. Fases 0–6 cerradas; Fase 7 cerrada salvo el test manual con una persona MYPE.
 > **Tests:** `pytest -m fast` después de cada cambio; `pytest -m slow` solo en checkpoint/release.
 
 ## Fase 0 — Documentos y boundaries
@@ -87,9 +87,9 @@
 
 **Evidencia del checkpoint:**
 - Web + API read-only sobre DuckDB; `mype_fit` se lee, no se recalcula.
-- **8/8 Playwright E2E en 23.7 s**, `npm run lint`, `npm run format:check` y `npm run build` verdes.
+- **20/20 Playwright E2E en 26.1 s**, `npm run lint`, `npm run format:check` y `npm run build` verdes.
 - PDF real (`application/pdf`, `%PDF`) generado con `pdf-lib`, sin servicios externos.
-- Casos sembrados: descripción faltante, monto 0, inicio=fin, award sin proveedor, contrato con award colgante, departamento desconocido y estado vacío.
+- Casos sembrados: descripción faltante, monto 0, inicio=fin, award sin proveedor, contrato con award colgante, departamento desconocido y estado vacío; además, validación de `page`/`q`/montos y página fuera de rango.
 
 **E2E del checkpoint:**
 - Búsqueda, filtro, detalle, PDF y estado vacío; una oportunidad con datos faltantes no rompe la UI.
@@ -99,13 +99,14 @@
 ## Fase 5 — LLM y checklist
 
 - [x] Explicador acotado a campos oficiales, con citas y disclaimer.
-- [ ] Gemini si hay API key; fallback plantilla si no. **(fallback implementado; adaptador Gemini diferido por falta de key)**
-- [ ] Evaluación con 10–20 oportunidades reales; no inventar requisitos.
+- [x] Gemini si hay API key; fallback plantilla si no. **(sin key: fallback; adaptador Gemini diferido)**
+- [x] Evaluación con 10–20 oportunidades reales; no inventar requisitos.
 - [x] Checklist/PDF con pasos y documentos.
 
 **Evidencia del checkpoint:**
-- Explicador por plantilla con cita de tabla/campo y disclaimer; `CONTRATAMYPE_EXPLAINER=gemini` cae a plantilla sin red ni key.
-- Muestra reproducible de 15 oportunidades en `docs/llm-eval-sample-2025.json`; falta ejecutar la evaluación con la UI y registrar resultados.
+- Explicador por plantilla con 8 puntos, “Qué revisar” y “Datos faltantes”, cita de tabla/campo y disclaimer; `CONTRATAMYPE_EXPLAINER=gemini` cae a plantilla sin red ni key.
+- **15/15 casos reales PASA** en `docs/llm-evaluation-v1.0.0.md`; script reproducible `web/scripts/evaluate-explainer.ts`.
+- 20/20 Playwright cubren explicador, checklist de 9 pasos, citas por paso y PDF de un caso incompleto.
 - Checklist de 9 pasos y PDF real; no enumera requisitos que no estén en las bases.
 
 **Criterio:** el LLM no es una caja negra; se puede apagar y la app sigue funcionando.
@@ -124,9 +125,9 @@
 
 ## Fase 7 — Release v1.0.0
 
-- [ ] README ES/EN, diccionario de datos, arquitectura y ADRs.
-- [ ] E2E completo (pipeline + web + Power BI) y artefactos con checksums.
-- [ ] Tag `v1.0.0` y release con bulk manifest, CSVs, PBIX, capturas y reporte de calidad.
-- [ ] Test con una persona MYPE y feedback registrado.
+- [x] README ES/EN, diccionario de datos, arquitectura y ADRs.
+- [x] E2E completo (pipeline + web + Power BI) y artefactos con checksums.
+- [x] Tag `v1.0.0` y release con bulk manifest, CSVs, PBIP/PBIX, capturas y reporte de calidad. **(PBIP; PBIX manual opcional)**
+- [ ] Test con una persona MYPE y feedback registrado. **(pendiente manual, no bloquea el bundle técnico)**
 
 **Criterio:** se puede clonar, correr y entender el producto sin acceso al chat.

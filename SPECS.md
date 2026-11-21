@@ -1,7 +1,7 @@
 # SPECS — ContrataMYPE
 
 > **Versión:** v0.1.0 (auditoría de datos) → v1.0.0 (producto).
-> **Estado:** v1.0.0 en cierre; cohorte 2025 y umbral MYPE de S/ 200,000 definidos con la auditoría.
+> **Estado:** v1.0.0; cohorte 2025 y umbral MYPE de S/ 200,000 definidos con la auditoría.
 > **Fuente:** OECE — Portal de Contrataciones Abiertas (OCDS), datos abiertos CC BY 4.0.
 
 ## 1. Problema
@@ -172,9 +172,9 @@ red; no se simula). Un `fail` bloquea exports; un `warn` se reporta. El bulk
 - [x] Audit 2025 con conteos, calidad, SHA-256 y decisión de ventana.
 - [x] Pipeline E2E con escenario medio-difícil y artefactos verificables.
 - [x] DuckDB/Parquet con star schema y 12 validaciones (PostgreSQL 17 diferido; ADR-0001).
-- [ ] Power BI PBIP/PBIX validado y capturado.
+- [x] Power BI PBIP/PBIX validado y capturado. **(PBIP validado 0/0 y capturas; PBIX manual opcional)**
 - [x] Web Next.js con búsqueda, detalle, MYPE fit, checklist/PDF y disclaimers.
-- [ ] LLM acotado o fallback plantilla, con evaluación y citas.
+- [x] LLM acotado o fallback plantilla, con evaluación y citas.
 - [x] Alertas digest + adaptador Power Automate (o documentado).
 - [x] README ES/EN, data dictionary, architecture, SPECS/ROADMAP/CODESTYLE/AGENTS.
-- [ ] Release v1.0.0 con artefactos y checksums.
+- [x] Release v1.0.0 con artefactos y checksums.
