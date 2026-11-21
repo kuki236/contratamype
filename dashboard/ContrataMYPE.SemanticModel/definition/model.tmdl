@@ -1,0 +1,15 @@
+model ContrataMYPE
+	culture: es-PE
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-PE
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_ProTooling = ["MCP-PBIModeling"]
+
+ref table Tenders
+ref table Awards
+ref table Contracts
+ref table Buyers
+ref table Suppliers

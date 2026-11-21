@@ -1,0 +1,59 @@
+/// Una fila por contrato reportado en el OCID.
+table Contracts
+
+	/// Cantidad de contratos en el contexto de filtros actual.
+	measure Contratos = COUNTROWS('Contracts')
+		formatString: #,##0
+		displayFolder: Contratación
+
+	/// Monto total contratado en el contexto de filtros actual.
+	measure 'Monto contratado' = SUM('Contracts'[Monto contratado (S/)])
+		formatString: "S/ "#,##0
+		displayFolder: Contratación
+
+	column ocid
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: ocid
+
+	column contract_id
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: contract_id
+
+	column award_id
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: award_id
+
+	column 'Monto contratado (S/)'
+		dataType: decimal
+		formatString: "S/ "#,##0.00
+		summarizeBy: none
+		sourceColumn: Monto contratado (S/)
+
+	column 'Fecha de firma'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Fecha de firma
+
+	column Estado
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Estado
+
+	partition Contracts = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "\contracts.parquet")),
+				    Selected = Table.SelectColumns(Source, {"ocid", "contract_id", "award_id", "amount_pen", "signed_date", "status"}),
+				    Renamed = Table.RenameColumns(Selected, {{"amount_pen", "Monto contratado (S/)"}, {"signed_date", "Fecha de firma"}, {"status", "Estado"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"ocid", type text}, {"contract_id", type text}, {"award_id", type text}, {"Monto contratado (S/)", Currency.Type}, {"Fecha de firma", type date}, {"Estado", type text}})
+				in
+				    Typed

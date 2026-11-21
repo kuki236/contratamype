@@ -1,0 +1,37 @@
+/// Entidad compradora (una fila por buyer_id).
+table Buyers
+
+	column buyer_id
+		dataType: string
+		isHidden
+		isKey
+		summarizeBy: none
+		sourceColumn: buyer_id
+
+	column Entidad
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Entidad
+
+	column RUC
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: RUC
+
+	column Departamento
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Departamento
+
+	partition Buyers = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "\buyers.parquet")),
+				    Selected = Table.SelectColumns(Source, {"buyer_id", "name", "ruc", "department"}),
+				    Renamed = Table.RenameColumns(Selected, {{"name", "Entidad"}, {"ruc", "RUC"}, {"department", "Departamento"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"buyer_id", type text}, {"Entidad", type text}, {"RUC", type text}, {"Departamento", type text}})
+				in
+				    Typed

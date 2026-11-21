@@ -1,0 +1,15 @@
+relationship TendersToBuyers
+	fromColumn: Tenders.buyer_id
+	toColumn: Buyers.buyer_id
+
+relationship AwardsToTenders
+	fromColumn: Awards.ocid
+	toColumn: Tenders.ocid
+
+relationship AwardsToSuppliers
+	fromColumn: Awards.supplier_id
+	toColumn: Suppliers.supplier_id
+
+relationship ContractsToTenders
+	fromColumn: Contracts.ocid
+	toColumn: Tenders.ocid

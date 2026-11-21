@@ -1,0 +1,2 @@
+/// Carpeta de exports Parquet generados por el pipeline de ContrataMYPE.
+expression DataFolder = "C:\Users\sebas\Desktop\practicas\projects\contratamype\artifacts\2025" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]

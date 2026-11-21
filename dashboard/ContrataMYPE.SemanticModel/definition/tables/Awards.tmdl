@@ -1,0 +1,70 @@
+/// Una fila por adjudicación reportada en el OCID.
+table Awards
+
+	/// Monto total adjudicado en el contexto de filtros actual.
+	measure 'Monto adjudicado' = SUM('Awards'[Monto adjudicado (S/)])
+		formatString: "S/ "#,##0
+		displayFolder: Adjudicación
+
+	/// Procesos distintos con al menos una adjudicación.
+	measure 'Procesos con adjudicación' = DISTINCTCOUNT('Awards'[ocid])
+		formatString: #,##0
+		displayFolder: Adjudicación
+
+	/// Proveedores distintos con al menos una adjudicación.
+	measure 'Proveedores con adjudicación' = DISTINCTCOUNT('Awards'[supplier_id])
+		formatString: #,##0
+		displayFolder: Adjudicación
+
+	column ocid
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: ocid
+
+	column award_id
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: award_id
+
+	column supplier_id
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+	column Proveedor
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Proveedor
+
+	column 'Monto adjudicado (S/)'
+		dataType: decimal
+		formatString: "S/ "#,##0.00
+		summarizeBy: none
+		sourceColumn: Monto adjudicado (S/)
+
+	column 'Fecha de adjudicación'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Fecha de adjudicación
+
+	column Estado
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Estado
+
+	partition Awards = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "\awards.parquet")),
+				    Selected = Table.SelectColumns(Source, {"ocid", "award_id", "supplier_id", "supplier_name", "amount_pen", "award_date", "status"}),
+				    Renamed = Table.RenameColumns(Selected, {{"supplier_name", "Proveedor"}, {"amount_pen", "Monto adjudicado (S/)"}, {"award_date", "Fecha de adjudicación"}, {"status", "Estado"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"ocid", type text}, {"award_id", type text}, {"supplier_id", type text}, {"Proveedor", type text}, {"Monto adjudicado (S/)", Currency.Type}, {"Fecha de adjudicación", type date}, {"Estado", type text}})
+				in
+				    Typed

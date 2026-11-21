@@ -1,0 +1,199 @@
+/// Un proceso de contratación de la cohorte (una fila por OCID).
+table Tenders
+
+	/// Cantidad de procesos en el contexto de filtros actual.
+	measure Procesos = COUNTROWS('Tenders')
+		formatString: #,##0
+		displayFolder: Indicadores
+
+	/// Monto referencial convocado, en soles. Incluye montos 0 (no informados).
+	measure 'Monto total' = SUM('Tenders'[Monto (S/)])
+		formatString: "S/ "#,##0
+		displayFolder: Indicadores
+
+	/// Mediana del monto referencial. Ignora vacíos; incluye montos 0.
+	measure 'Monto mediano' = MEDIAN('Tenders'[Monto (S/)])
+		formatString: "S/ "#,##0.00
+		displayFolder: Indicadores
+
+	/// Procesos marcados como compatibles por la heurística MYPE del pipeline.
+	measure 'Oportunidades MYPE' = CALCULATE([Procesos], 'Tenders'[Compatible MYPE] = TRUE())
+		formatString: #,##0
+		displayFolder: MYPE
+
+	/// Participación de los procesos compatibles MYPE sobre el total de procesos.
+	measure '% MYPE' = DIVIDE(COALESCE([Oportunidades MYPE], 0), [Procesos])
+		formatString: 0.0%
+		displayFolder: MYPE
+
+	/// Monto referencial de los procesos compatibles MYPE.
+	measure 'Monto MYPE' = CALCULATE([Monto total], 'Tenders'[Compatible MYPE] = TRUE())
+		formatString: "S/ "#,##0
+		displayFolder: MYPE
+
+	/// Participación del monto MYPE sobre el monto total convocado.
+	measure '% monto MYPE' = DIVIDE(COALESCE([Monto MYPE], 0), [Monto total])
+		formatString: 0.0%
+		displayFolder: MYPE
+
+	/// Monto total expresado en miles de millones de soles, para ejes y etiquetas.
+	measure 'Monto (miles de millones S/)' = DIVIDE([Monto total], 1000000000)
+		formatString: 0.0
+		displayFolder: Indicadores
+
+	/// Monto promedio por proceso; equivale al ticket promedio de la cohorte.
+	measure 'Ticket promedio' = DIVIDE([Monto total], [Procesos])
+		formatString: "S/ "#,##0
+		displayFolder: Indicadores
+
+	/// Procesos con monto 0, que el pipeline reporta como no informado.
+	measure 'Procesos con monto 0' = CALCULATE([Procesos], 'Tenders'[Monto (S/)] = 0)
+		formatString: #,##0
+		displayFolder: Calidad
+
+	/// Entidades compradoras distintas con al menos un proceso.
+	measure 'Entidades compradoras' = DISTINCTCOUNT('Tenders'[buyer_id])
+		formatString: #,##0
+		displayFolder: Indicadores
+
+	column ocid
+		dataType: string
+		isHidden
+		isKey
+		summarizeBy: none
+		sourceColumn: ocid
+
+	column Proceso
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Proceso
+
+	column category
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: category
+
+	column Método
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Método
+
+	column 'Monto (S/)'
+		dataType: decimal
+		formatString: "S/ "#,##0.00
+		summarizeBy: none
+		sourceColumn: Monto (S/)
+
+	column 'Fecha de publicación'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Fecha de publicación
+
+	column 'Inicio del período'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Inicio del período
+
+	column 'Fin del período'
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		summarizeBy: none
+		sourceColumn: Fin del período
+
+	column buyer_id
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: buyer_id
+
+	column Departamento
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Departamento
+
+	column department_code
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: department_code
+
+	column 'Año de cohorte'
+		dataType: int64
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: Año de cohorte
+
+	column 'Compatible MYPE'
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: Compatible MYPE
+
+	column 'Fechas válidas'
+		dataType: boolean
+		isHidden
+		summarizeBy: none
+		sourceColumn: Fechas válidas
+
+	column 'Inicio = fin'
+		dataType: boolean
+		isHidden
+		summarizeBy: none
+		sourceColumn: Inicio = fin
+
+	/// Etiqueta en español de la categoría OCDS.
+	column Categoría = SWITCH('Tenders'[category], "goods", "Bienes", "services", "Servicios", "works", "Obras", 'Tenders'[category])
+		dataType: string
+		summarizeBy: none
+		displayFolder: Categorías
+
+	/// Etiqueta legible de la heurística MYPE calculada por el pipeline.
+	column 'Compatibilidad MYPE' = IF('Tenders'[Compatible MYPE], "Compatible MYPE", "No compatible")
+		dataType: string
+		summarizeBy: none
+		displayFolder: MYPE
+
+	column amount_band_order = SWITCH(TRUE(), 'Tenders'[Monto (S/)] <= 0, 0, 'Tenders'[Monto (S/)] <= 50000, 1, 'Tenders'[Monto (S/)] <= 200000, 2, 'Tenders'[Monto (S/)] <= 1000000, 3, 'Tenders'[Monto (S/)] <= 5000000, 4, 5)
+		dataType: int64
+		isHidden
+		formatString: 0
+		summarizeBy: none
+
+	/// Rangos de monto referencial usados para el análisis de distribución.
+	column 'Rango de monto' = SWITCH(TRUE(), 'Tenders'[Monto (S/)] <= 0, "Sin monto", 'Tenders'[Monto (S/)] <= 50000, "Hasta 50 mil", 'Tenders'[Monto (S/)] <= 200000, "50–200 mil", 'Tenders'[Monto (S/)] <= 1000000, "200 mil–1 M", 'Tenders'[Monto (S/)] <= 5000000, "1–5 M", "Más de 5 M")
+		dataType: string
+		summarizeBy: none
+		sortByColumn: amount_band_order
+		displayFolder: Indicadores
+
+	column month_order = MONTH('Tenders'[Fecha de publicación])
+		dataType: int64
+		isHidden
+		formatString: 0
+		summarizeBy: none
+
+	/// Mes de publicación, en español y ordenado cronológicamente.
+	column Mes = SWITCH(MONTH('Tenders'[Fecha de publicación]), 1, "Ene", 2, "Feb", 3, "Mar", 4, "Abr", 5, "May", 6, "Jun", 7, "Jul", 8, "Ago", 9, "Set", 10, "Oct", 11, "Nov", 12, "Dic", "Sin fecha")
+		dataType: string
+		summarizeBy: none
+		sortByColumn: month_order
+		displayFolder: Indicadores
+
+	column 'Año de publicación' = YEAR('Tenders'[Fecha de publicación])
+		dataType: int64
+		isHidden
+		formatString: 0
+		summarizeBy: none
+
+	partition Tenders = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "\tenders.parquet")),
+				    Selected = Table.SelectColumns(Source, {"ocid", "title", "category", "method", "amount_pen", "published_date", "tender_start", "tender_end", "buyer_id", "department", "department_code", "segmentation_year", "mype_fit", "dates_valid", "period_start_eq_end"}),
+				    Renamed = Table.RenameColumns(Selected, {{"title", "Proceso"}, {"method", "Método"}, {"amount_pen", "Monto (S/)"}, {"published_date", "Fecha de publicación"}, {"tender_start", "Inicio del período"}, {"tender_end", "Fin del período"}, {"department", "Departamento"}, {"segmentation_year", "Año de cohorte"}, {"mype_fit", "Compatible MYPE"}, {"dates_valid", "Fechas válidas"}, {"period_start_eq_end", "Inicio = fin"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"ocid", type text}, {"Proceso", type text}, {"category", type text}, {"Método", type text}, {"Monto (S/)", Currency.Type}, {"Fecha de publicación", type date}, {"Inicio del período", type date}, {"Fin del período", type date}, {"buyer_id", type text}, {"Departamento", type text}, {"department_code", type text}, {"Año de cohorte", Int64.Type}, {"Compatible MYPE", type logical}, {"Fechas válidas", type logical}, {"Inicio = fin", type logical}})
+				in
+				    Typed

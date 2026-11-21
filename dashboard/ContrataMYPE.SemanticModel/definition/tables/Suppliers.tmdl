@@ -1,0 +1,37 @@
+/// Proveedor adjudicado (una fila por supplier_id).
+table Suppliers
+
+	column supplier_id
+		dataType: string
+		isHidden
+		isKey
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+	column Proveedor
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Proveedor
+
+	column RUC
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: RUC
+
+	column Departamento
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Departamento
+
+	partition Suppliers = m
+		mode: import
+		source =
+				let
+				    Source = Parquet.Document(File.Contents(DataFolder & "\suppliers.parquet")),
+				    Selected = Table.SelectColumns(Source, {"supplier_id", "name", "ruc", "department"}),
+				    Renamed = Table.RenameColumns(Selected, {{"name", "Proveedor"}, {"ruc", "RUC"}, {"department", "Departamento"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"supplier_id", type text}, {"Proveedor", type text}, {"RUC", type text}, {"Departamento", type text}})
+				in
+				    Typed

@@ -1,0 +1,3 @@
+/// ContrataMYPE: mercado de compras públicas del Perú (OCDS/OECE, cohorte 2025).
+database ContrataMYPE
+	compatibilityLevel: 1702
