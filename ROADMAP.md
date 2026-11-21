@@ -1,7 +1,7 @@
 # ROADMAP — ContrataMYPE
 
 > **Regla:** no se avanza de fase sin el E2E de la fase y su artefacto verificable.
-> **Estado:** v1.0.0 en preparación. Fases 0–2, 4 y 6 cerradas; Fase 3 (Power BI), Fase 5 (evaluación LLM) y Fase 7 (release) en integración.
+> **Estado:** v1.0.0 en preparación. Fases 0–4 y 6 cerradas; Fase 5 (evaluación LLM) y Fase 7 (release) en cierre.
 > **Tests:** `pytest -m fast` después de cada cambio; `pytest -m slow` solo en checkpoint/release.
 
 ## Fase 0 — Documentos y boundaries
@@ -59,11 +59,17 @@
 
 ## Fase 3 — Power BI
 
-- [ ] Modelo TMDL con hechos/dimensiones y medidas.
-- [ ] Página 1: mercado por región/rubro/monto/evolución/participación MYPE.
-- [ ] Página 2: explorador de oportunidades con filtros y tabla.
-- [ ] Tema, capturas y PBIP/PBIX.
-- [ ] `powerbi-report-author validate` 0/0 + capturas Desktop.
+- [x] Modelo TMDL con hechos/dimensiones y medidas.
+- [x] Página 1: mercado por región/rubro/monto/evolución/participación MYPE.
+- [x] Página 2: explorador de oportunidades con filtros y tabla.
+- [x] Tema, capturas y PBIP/PBIX.
+- [x] `powerbi-report-author validate` 0/0 + capturas Desktop.
+
+**Evidencia del checkpoint:**
+- `dashboard/ContrataMYPE.pbip` con 2 páginas, 31 visuales, 4 tablas y medidas; PBIR validate **0 errores / 0 warnings**.
+- Modelo refrescado el 20/11/2026 con el Parquet corregido: 124,538 procesos, 59,141 cohorte, **29,921 MYPE (50.6%)**, S/ 66,624,609,618.79.
+- Capturas `dashboard/screenshots/mercado.png` y `oportunidades.png`, 1872×1052.
+- PBIX binario no exportado por esta build de Desktop; el gate acepta el PBIP y `docs/powerbi.md` documenta la exportación manual opcional.
 
 **E2E del checkpoint:**
 - PBIR válido, modelo refrescado con el dataset de prueba y capturas revisadas.
@@ -73,7 +79,7 @@
 ## Fase 4 — Web app Next.js
 
 - [x] App Router + TypeScript + Tailwind.
-- [x] Búsqueda por texto/región/rubro/categoría/monto/estado.
+- [x] Búsqueda por texto/región/categoría (rubro OCDS)/monto/método; estado no informado en el bulk 2025.
 - [x] Detalle de oportunidad y MYPE fit.
 - [x] Checklist/PDF.
 - [x] Estados vacíos y datos incompletos explicados.

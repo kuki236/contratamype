@@ -1,7 +1,7 @@
 # SPECS — ContrataMYPE
 
 > **Versión:** v0.1.0 (auditoría de datos) → v1.0.0 (producto).
-> **Estado:** documentos iniciales; la ventana de datos y el umbral MYPE se cierran con la auditoría 2025.
+> **Estado:** v1.0.0 en cierre; cohorte 2025 y umbral MYPE de S/ 200,000 definidos con la auditoría.
 > **Fuente:** OECE — Portal de Contrataciones Abiertas (OCDS), datos abiertos CC BY 4.0.
 
 ## 1. Problema
@@ -21,9 +21,9 @@ Las MYPEs peruanas no acceden a compras públicas por tres barreras: no encuentr
 ## 3. Alcance v1.0.0
 
 ### Web app (Next.js)
-- Búsqueda por texto, región, rubro, categoría, monto y estado.
+- Búsqueda por texto, región, categoría (rubro OCDS), monto y método; estado cuando la fuente lo informe (no en el bulk 2025).
 - Detalle de oportunidad: entidad, objeto, valor, fechas, categoría, requisitos disponibles y enlaces oficiales.
-- **MYPE fit** heurístico: monto + rubro + región; etiqueta “compatible”, nunca “elegible legalmente”.
+- **MYPE fit** heurístico: monto > 0 + rubro + región; etiqueta "compatible", nunca "elegible legalmente".
 - Checklist/PDF descargable con pasos y documentos.
 - Explicador LLM **acotado a campos oficiales**, con citas y disclaimer; si no hay API key, fallback a plantilla.
 - Sin cuentas de usuario en v1.0: búsqueda y checklist públicos; alertas por email/digest.

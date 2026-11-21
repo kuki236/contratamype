@@ -7,7 +7,7 @@
 - Código, tablas, columnas, variables, funciones, commits: **inglés**.
 - UI, mensajes, documentación, hallazgos: **español**.
 - Nombres descriptivos; evitar abreviaturas opacas (`buyer`, no `b`).
-- Fechas en ISO 8601; montos en `PEN` con `decimal`/`numeric`, nunca `float` para dinero.
+- Fechas en ISO 8601; montos en `PEN` con `decimal`/`numeric`, nunca `float` para dinero. La API puede serializar montos como número JSON de dos decimales para la UI; los cálculos y la base siguen en `DECIMAL`.
 
 ## 2. Python
 

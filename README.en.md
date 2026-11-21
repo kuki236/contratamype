@@ -33,7 +33,7 @@ ContrataMYPE answers:
 
 ## What v1.0.0 includes
 
-- **Next.js web app** with text, region, category, amount and status filters.
+- **Next.js web app** with text, region, category (OCDS sector), amount and method filters. Status is not reported in the 2025 bulk; the UI explains it.
 - **Opportunity detail** with buyer, object, value, dates, category and official links.
 - **MYPE fit** heuristic (amount > 0 + category + region), labelled “compatible”,
   never as legal eligibility.
