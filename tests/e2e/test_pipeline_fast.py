@@ -1,9 +1,9 @@
 """Fast E2E: medium-hard OCDS fixture through the real CLI/artifacts.
 
 The fixture is intentionally dirty: duplicate OCID, amount 0, negative amount,
-invalid category, missing department, missing buyer, award without supplier and
-contract without award. The test proves the quality gate and the artifacts, not
-just that the code runs.
+invalid category, missing department, missing buyer, award without supplier,
+award without contract, supplier without address and contract without award.
+The test proves the quality gate and the artifacts, not just that the code runs.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import duckdb
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -33,6 +34,7 @@ def _release(
     buyer_party: bool = True,
     award: bool = True,
     award_supplier: bool = True,
+    supplier_address: bool = True,
     contract: bool = True,
     contract_award: bool = True,
 ) -> dict:
@@ -51,14 +53,14 @@ def _release(
             }
         )
     if award:
-        parties.append(
-            {
-                "id": supplier_id,
-                "name": f"SUPPLIER {ocid}",
-                "roles": ["supplier", "tenderer"],
-                "address": {"department": department or "LIMA"},
-            }
-        )
+        supplier = {
+            "id": supplier_id,
+            "name": f"SUPPLIER {ocid}",
+            "roles": ["supplier", "tenderer"],
+        }
+        if supplier_address:
+            supplier["address"] = {"department": department or "LIMA"}
+        parties.append(supplier)
     release = {
         "ocid": ocid,
         "date": "2025-02-01T10:00:00-05:00",
@@ -148,7 +150,13 @@ def hard_records() -> list[dict]:
             award=False,
             contract=False,
         ),
-        _release("ocds-hard-007", category="goods", amount=150_000),
+        _release(
+            "ocds-hard-007",
+            category="goods",
+            amount=150_000,
+            supplier_address=False,
+            contract=False,
+        ),
     ]
 
 
@@ -202,9 +210,18 @@ def test_hard_fixture_blocks_and_reports_exact_counts(tmp_path: Path) -> None:
 
     assert summary["tenders"] == 7
     assert summary["awards"] == 3
-    assert summary["contracts"] == 3
+    assert summary["contracts"] == 2
     assert summary["buyers"] == 6
     assert summary["suppliers"] == 2
+
+    connection = duckdb.connect(str(tmp_path / "contratamype.duckdb"), read_only=True)
+    try:
+        missing_address = connection.execute(
+            "SELECT COUNT(*) FROM suppliers WHERE department IS NULL"
+        ).fetchone()[0]
+    finally:
+        connection.close()
+    assert missing_address == 1
     assert summary["cohort_records"] == 7
     assert summary["quality_gate"]["blocked"] is True
     assert summary["quality_summary"] == {
