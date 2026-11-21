@@ -16,7 +16,7 @@ export function Pagination({
   filters: SearchFilters;
   results: OpportunityPage;
 }) {
-  if (results.pages <= 1) return null;
+  if (results.pages <= 1 || results.page > results.pages) return null;
 
   return (
     <nav
@@ -35,7 +35,8 @@ export function Pagination({
         <span aria-hidden="true" />
       )}
       <p className="text-sm text-stone-600">
-        Página <strong>{results.page}</strong> de <strong>{results.pages}</strong>
+        Página <strong>{results.page.toLocaleString("es-PE")}</strong> de{" "}
+        <strong>{results.pages.toLocaleString("es-PE")}</strong>
       </p>
       {results.page < results.pages ? (
         <Link

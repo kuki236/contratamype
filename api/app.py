@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated, Any
 
 import duckdb
@@ -37,6 +38,8 @@ app = FastAPI(
         "la API no recalcula la regla MYPE."
     ),
 )
+
+logger = logging.getLogger(__name__)
 
 SUMMARY_COLUMNS = """
     t.ocid, t.title, t.description, t.category, t.method, t.amount_pen, t.currency,
@@ -161,17 +164,18 @@ def _detail(connection: duckdb.DuckDBPyConnection, ocid: str) -> OpportunityDeta
         """,
         [ocid],
     )
+    award_ids = {award.award_id for award in awards if award.award_id}
     contracts = [
         Contract(
             contract_id=contract_row["contract_id"],
             award_id=contract_row["award_id"],
+            award_linked=bool(contract_row["award_id"]) and contract_row["award_id"] in award_ids,
             amount_pen=money(contract_row["amount_pen"]),
             signed_date=contract_row["signed_date"],
             status=contract_row["status"],
         )
         for contract_row in contract_rows
     ]
-    award_ids = {award.award_id for award in awards if award.award_id}
 
     start_eq_end = bool(row["period_start_eq_end"]) or (
         row["tender_start"] is not None and row["tender_start"] == row["tender_end"]
@@ -185,11 +189,7 @@ def _detail(connection: duckdb.DuckDBPyConnection, ocid: str) -> OpportunityDeta
         awards_without_supplier=sum(
             1 for award in awards if award.supplier is None and not award.supplier_name
         ),
-        contracts_without_award=sum(
-            1
-            for contract in contracts
-            if not contract.award_id or contract.award_id not in award_ids
-        ),
+        contracts_without_award=sum(1 for contract in contracts if not contract.award_linked),
         buyer_missing=buyer is None or not buyer.name,
         department_missing=not (row["department"] or "").strip(),
     )
@@ -205,7 +205,11 @@ def _detail(connection: duckdb.DuckDBPyConnection, ocid: str) -> OpportunityDeta
 
 @app.get("/health", response_model=Health)
 def health(connection: Connection) -> Health:
-    connection.execute("SELECT 1").fetchall()
+    try:
+        connection.execute("SELECT 1 FROM tenders LIMIT 1").fetchall()
+    except duckdb.Error as exc:
+        logger.error("Health check failed on tenders: %s", exc)
+        raise HTTPException(status_code=503, detail="Base de datos no disponible.") from exc
     return Health(status="ok")
 
 
@@ -260,7 +264,7 @@ def opportunities(
     status: str | None = None,
     year: Annotated[int, Query(ge=2000, le=2100)] = DEFAULT_YEAR,
     mype_only: bool = False,
-    page: Annotated[int, Query(ge=1)] = 1,
+    page: Annotated[int, Query(ge=1, le=100000)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> OpportunityPage:
     where = ["t.segmentation_year = ?"]

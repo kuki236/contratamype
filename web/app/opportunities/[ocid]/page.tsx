@@ -5,7 +5,7 @@ import { MypeBadge } from "@/components/mype-badge";
 import { Notice } from "@/components/notice";
 import { ApiError, getOpportunity } from "@/lib/api";
 import { MYPE_DISCLAIMER, getExplainer } from "@/lib/explainer";
-import { formatAmount, formatDate, formatPEN } from "@/lib/format";
+import { formatAmountUseful, formatDate, formatPEN } from "@/lib/format";
 import { categoryLabel, methodLabel, statusLabel } from "@/lib/labels";
 import type { OpportunityDetail } from "@/lib/types";
 
@@ -23,7 +23,7 @@ function dataAlerts(detail: OpportunityDetail): string[] {
   if (!detail.data_quality.amount_reported) {
     alerts.push(
       detail.amount_pen === 0
-        ? "La fuente registra S/ 0.00 como monto."
+        ? "La fuente registra S/ 0.00 como monto (no informado útil)."
         : "La fuente no informa el monto del proceso.",
     );
   }
@@ -37,6 +37,9 @@ function dataAlerts(detail: OpportunityDetail): string[] {
   }
   if (detail.data_quality.department_missing) {
     alerts.push("Departamento del proceso no informado.");
+  }
+  if (detail.data_quality.awards_without_supplier) {
+    alerts.push("Adjudicación sin proveedor identificado.");
   }
   if (detail.data_quality.contracts_without_award) {
     alerts.push("Contrato sin adjudicación vinculada.");
@@ -57,7 +60,7 @@ async function loadOpportunity(ocid: string): Promise<OpportunityDetail | null> 
   try {
     return await getOpportunity(ocid);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return null;
+    if (error instanceof ApiError && error.isJsonNotFound) return null;
     throw error;
   }
 }
@@ -148,7 +151,7 @@ export default async function OpportunityPage({ params }: { params: Promise<{ oc
                 <span className="break-all font-mono text-xs sm:text-sm">{detail.ocid}</span>
               </Field>
               <Field label="Estado">
-                <span className="capitalize">{statusLabel(detail.status)}</span>
+                <span>{statusLabel(detail.status)}</span>
               </Field>
               <Field label="Entidad compradora">
                 {detail.buyer?.name ?? detail.buyer_name ?? "Entidad no informada"}
@@ -164,12 +167,7 @@ export default async function OpportunityPage({ params }: { params: Promise<{ oc
               </Field>
               <Field label="Categoría">{categoryLabel(detail.category)}</Field>
               <Field label="Método de contratación">{methodLabel(detail.method)}</Field>
-              <Field label="Monto registrado">
-                {formatAmount(detail.amount_pen)}
-                {detail.amount_pen === 0 ? (
-                  <span className="ml-1 font-normal text-stone-500">(S/ 0.00 en la fuente)</span>
-                ) : null}
-              </Field>
+              <Field label="Monto registrado">{formatAmountUseful(detail.amount_pen)}</Field>
               <Field label="Publicado">{formatDate(detail.published_date)}</Field>
               <Field label="Inicio del período">{formatDate(detail.tender_start)}</Field>
               <Field label="Fin del período">
@@ -285,7 +283,9 @@ export default async function OpportunityPage({ params }: { params: Promise<{ oc
                           {contract.contract_id ?? "No informado"}
                         </td>
                         <td className="py-3 pr-4">
-                          {contract.award_id ?? "Contrato sin adjudicación vinculada."}
+                          {contract.award_linked
+                            ? (contract.award_id ?? "No informado")
+                            : "Contrato sin adjudicación vinculada."}
                         </td>
                         <td className="py-3 pr-4">{formatPEN(contract.amount_pen)}</td>
                         <td className="py-3 pr-4">{formatDate(contract.signed_date)}</td>
@@ -308,7 +308,7 @@ export default async function OpportunityPage({ params }: { params: Promise<{ oc
             <p className="mt-2 text-sm leading-6 text-stone-600">{explanation.intro}</p>
             <dl className="mt-5 space-y-5">
               {explanation.points.map((point) => (
-                <div key={point.label}>
+                <div key={point.label} data-testid="explainer-point">
                   <dt className="font-semibold text-brand-950">{point.label}</dt>
                   <dd className="mt-1 text-sm leading-6 text-stone-700">{point.text}</dd>
                   <dd className="mt-1 text-xs text-stone-500">
@@ -317,7 +317,10 @@ export default async function OpportunityPage({ params }: { params: Promise<{ oc
                 </div>
               ))}
             </dl>
-            <div className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950 ring-1 ring-amber-200">
+            <div
+              data-testid="explainer-disclaimer"
+              className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950 ring-1 ring-amber-200"
+            >
               {explanation.disclaimer}
             </div>
           </section>

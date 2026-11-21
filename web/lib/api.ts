@@ -5,9 +5,14 @@ export class ApiError extends Error {
   constructor(
     public readonly status: number,
     message: string,
+    public readonly isJson: boolean = false,
   ) {
     super(message);
     this.name = "ApiError";
+  }
+
+  get isJsonNotFound(): boolean {
+    return this.status === 404 && this.isJson;
   }
 }
 
@@ -19,16 +24,21 @@ async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl()}${path}`, {
     cache: "no-store",
     headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(5000),
   });
   if (!response.ok) {
     let message = `La API respondió ${response.status}.`;
-    try {
-      const body = (await response.json()) as { detail?: string };
-      if (body.detail) message = body.detail;
-    } catch {
-      // Keep the status-based message when the body is not JSON.
+    let isJson = false;
+    if ((response.headers.get("content-type") ?? "").includes("application/json")) {
+      try {
+        const body = (await response.json()) as { detail?: string };
+        isJson = true;
+        if (body.detail) message = body.detail;
+      } catch {
+        // Keep the status-based message when the body is not valid JSON.
+      }
     }
-    throw new ApiError(response.status, message);
+    throw new ApiError(response.status, message, isJson);
   }
   return (await response.json()) as T;
 }
@@ -73,5 +83,6 @@ export function getChecklistResponse(ocid: string): Promise<Response> {
   return fetch(`${apiBaseUrl()}/checklist/${encodeURIComponent(ocid)}`, {
     cache: "no-store",
     headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(5000),
   });
 }

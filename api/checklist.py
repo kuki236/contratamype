@@ -50,10 +50,16 @@ def _warnings(detail: OpportunityDetail) -> list[str]:
     if quality.missing_description:
         warnings.append("La fuente no incluye una descripción del objeto.")
     if not quality.amount_reported:
-        warnings.append(
-            "La fuente registra S/ 0.00 como monto. "
-            "No asumas que el proceso es gratuito; confírmalo en las bases."
-        )
+        if detail.amount_pen == 0:
+            warnings.append(
+                "La fuente registra S/ 0.00 como monto (no informado útil). "
+                "No asumas que el proceso es gratuito; confírmalo en las bases."
+            )
+        else:
+            warnings.append(
+                "La fuente no informa el monto del proceso. "
+                "No asumas que el proceso es gratuito; confírmalo en las bases."
+            )
     if quality.start_eq_end:
         warnings.append(
             "La fuente registra la misma fecha de inicio y fin. "
@@ -97,9 +103,14 @@ def _items(detail: OpportunityDetail) -> list[ChecklistItem]:
             f"La fuente registra {_money(detail.amount_pen)} (PEN). "
             "Confirma en las bases el valor referencial y las garantías aplicables."
         )
+    elif detail.amount_pen == 0:
+        amount_text = (
+            "La fuente registra S/ 0.00 (no informado útil). "
+            "No asumas que el proceso es gratuito: confírmalo en las bases."
+        )
     else:
         amount_text = (
-            "La fuente registra S/ 0.00 o no informa un monto útil. "
+            "La fuente no informa el monto del proceso. "
             "No asumas que el proceso es gratuito: confírmalo en las bases."
         )
 

@@ -10,7 +10,7 @@ export async function GET(_request: Request, context: { params: Promise<{ ocid: 
   try {
     checklist = await getChecklist(ocid);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) {
+    if (error instanceof ApiError && error.isJsonNotFound) {
       return new NextResponse("Checklist no encontrado.", {
         status: 404,
         headers: { "Content-Type": "text/plain; charset=utf-8" },

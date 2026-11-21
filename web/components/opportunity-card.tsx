@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatAmount, formatDateRange } from "@/lib/format";
+import { formatAmountUseful, formatDateRange } from "@/lib/format";
 import { CATEGORY_STYLES, categoryLabel, methodLabel } from "@/lib/labels";
 import type { OpportunitySummary } from "@/lib/types";
 import { MypeBadge } from "./mype-badge";
@@ -59,7 +59,7 @@ export function OpportunityCard({ opportunity }: { opportunity: OpportunitySumma
         <div>
           <dt className="text-xs font-semibold uppercase tracking-wide text-stone-500">Monto</dt>
           <dd className="mt-0.5 font-medium text-stone-800">
-            {formatAmount(opportunity.amount_pen)}
+            {formatAmountUseful(opportunity.amount_pen)}
           </dd>
         </div>
         <div>

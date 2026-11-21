@@ -73,12 +73,14 @@ test.describe("detalle de oportunidad", () => {
     await expect(page.getByTestId("mype-badge")).toHaveText("Compatible MYPE");
 
     await page.goto("/opportunities/ocds-test-0003");
-    await expect(page.getByText("La fuente registra S/ 0.00 como monto.")).toBeVisible();
-    await expect(page.getByText("Adjudicación sin proveedor identificado.")).toBeVisible();
-    await expect(page.getByText("No compatible MYPE").first()).toBeVisible();
+    await expect(
+      page.getByText("La fuente registra S/ 0.00 como monto (no informado útil)."),
+    ).toBeVisible();
+    await expect(page.getByText("Adjudicación sin proveedor identificado.").first()).toBeVisible();
+    await expect(page.getByTestId("mype-badge")).toHaveText("No marcada compatible");
 
     await page.goto("/opportunities/ocds-test-0004");
-    await expect(page.getByText("Contrato sin adjudicación vinculada.")).toBeVisible();
+    await expect(page.getByText("Contrato sin adjudicación vinculada.").first()).toBeVisible();
     await expect(page.getByText("Consultores del Sur EIRL").first()).toBeVisible();
   });
 

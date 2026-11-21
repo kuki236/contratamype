@@ -2,6 +2,8 @@ import type { OpportunityPage } from "./types";
 
 export const COHORT_YEAR = 2025;
 export const PAGE_SIZE = 20;
+export const MAX_QUERY_LENGTH = 200;
+export const MAX_PAGE = 100000;
 
 export interface SearchFilters {
   q: string;
@@ -31,7 +33,7 @@ function optionalNumber(value: string): number | undefined {
 export function parseFilters(raw: RawSearchParams): SearchFilters {
   const pageValue = Number.parseInt(first(raw.page), 10);
   return {
-    q: first(raw.q).trim(),
+    q: first(raw.q).trim().slice(0, MAX_QUERY_LENGTH),
     department: first(raw.department),
     category: first(raw.category),
     method: first(raw.method),
@@ -39,7 +41,7 @@ export function parseFilters(raw: RawSearchParams): SearchFilters {
     max_amount: first(raw.max_amount),
     status: first(raw.status),
     mype_only: first(raw.mype_only) !== "0",
-    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1,
+    page: Number.isFinite(pageValue) && pageValue > 0 ? Math.min(pageValue, MAX_PAGE) : 1,
   };
 }
 
@@ -79,15 +81,17 @@ export function toSearchParams(
 ): URLSearchParams {
   const merged = { ...filters, ...overrides };
   const params = new URLSearchParams();
-  if (merged.q) params.set("q", merged.q);
+  if (merged.q) params.set("q", merged.q.slice(0, MAX_QUERY_LENGTH));
   if (merged.department) params.set("department", merged.department);
   if (merged.category) params.set("category", merged.category);
   if (merged.method) params.set("method", merged.method);
-  if (merged.min_amount) params.set("min_amount", merged.min_amount);
-  if (merged.max_amount) params.set("max_amount", merged.max_amount);
+  const minAmount = optionalNumber(merged.min_amount);
+  const maxAmount = optionalNumber(merged.max_amount);
+  if (minAmount !== undefined) params.set("min_amount", String(minAmount));
+  if (maxAmount !== undefined) params.set("max_amount", String(maxAmount));
   if (merged.status) params.set("status", merged.status);
   params.set("mype_only", merged.mype_only ? "1" : "0");
-  if (merged.page > 1) params.set("page", String(merged.page));
+  if (merged.page > 1) params.set("page", String(Math.min(merged.page, MAX_PAGE)));
   return params;
 }
 
@@ -106,7 +110,10 @@ export function hasActiveFilters(filters: SearchFilters): boolean {
 
 export function pageLabel(results: OpportunityPage): string {
   if (results.total === 0) return "0 resultados";
+  if (results.page > results.pages) {
+    return `${results.total.toLocaleString("es-PE")} resultados`;
+  }
   const start = (results.page - 1) * results.page_size + 1;
   const end = Math.min(results.page * results.page_size, results.total);
-  return `${start}–${end} de ${results.total}`;
+  return `${start.toLocaleString("es-PE")}–${end.toLocaleString("es-PE")} de ${results.total.toLocaleString("es-PE")}`;
 }

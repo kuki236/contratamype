@@ -38,8 +38,9 @@ export function formatPENCompact(value: number | null | undefined): string {
   return `S/ ${compactMoneyFormatter.format(value)}`;
 }
 
-export function formatAmount(value: number | null | undefined): string {
-  if (value === null || value === undefined || value === 0) return "Monto no informado";
+export function formatAmountUseful(value: number | null | undefined): string {
+  if (value === null || value === undefined) return "Monto no informado";
+  if (value === 0) return "S/ 0.00 (no informado útil)";
   return formatPEN(value);
 }
 

@@ -9,7 +9,7 @@ const CONFIG = {
     dot: "bg-teal-600",
   },
   no: {
-    label: "No compatible MYPE",
+    label: "No marcada compatible",
     className: "border-slate-300 bg-slate-100 text-slate-700",
     dot: "bg-slate-400",
   },

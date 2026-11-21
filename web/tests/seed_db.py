@@ -416,6 +416,35 @@ TENDERS = [
     },
 ]
 
+# Deterministic filler used only by pagination regressions: it must not match the
+# filters asserted by the other tests, so all rows are non-MYPE services in Lima.
+BULK_TENDERS = [
+    {
+        "ocid": f"ocds-test-bulk-{index:02d}",
+        "title": f"Servicio recurrente {index:02d}",
+        "description": f"Contrato repetitivo de servicios para la sede {index:02d}.",
+        "category": "services",
+        "method": "Comparación de Precios",
+        "amount_pen": _money(12345),
+        "currency": "PEN",
+        "published_date": _d("2025-11-01"),
+        "tender_start": _d("2025-11-10"),
+        "tender_end": _d("2025-11-20"),
+        "status": "En evaluación",
+        "buyer_id": "B1",
+        "buyer_name": "Municipalidad Distrital de San Isidro",
+        "department": "LIMA",
+        "department_code": "15",
+        "segmentation_id": "2025-11",
+        "segmentation_year": 2025,
+        "mype_fit": False,
+        "dates_valid": True,
+        "period_start_eq_end": False,
+    }
+    for index in range(1, 26)
+]
+TENDERS.extend(BULK_TENDERS)
+
 AWARDS = [
     {
         "ocid": "ocds-test-0001",

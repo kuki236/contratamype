@@ -47,6 +47,7 @@ export interface Award {
 export interface Contract {
   contract_id: string | null;
   award_id: string | null;
+  award_linked: boolean;
   amount_pen: number | null;
   signed_date: string | null;
   status: string | null;

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { MypeBadge } from "@/components/mype-badge";
 import { PrintButton } from "@/components/print-button";
 import { ApiError, getChecklist } from "@/lib/api";
-import { formatAmount, formatDate } from "@/lib/format";
+import { formatAmountUseful, formatDate } from "@/lib/format";
 import { categoryLabel, methodLabel } from "@/lib/labels";
 import type { Checklist } from "@/lib/types";
 
@@ -18,7 +18,7 @@ async function loadChecklist(ocid: string): Promise<Checklist | null> {
   try {
     return await getChecklist(ocid);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return null;
+    if (error instanceof ApiError && error.isJsonNotFound) return null;
     throw error;
   }
 }
@@ -94,7 +94,7 @@ export default async function ChecklistPage({ params }: { params: Promise<{ ocid
                 Monto
               </dt>
               <dd className="mt-0.5 font-medium text-stone-900">
-                {formatAmount(checklist.process.amount_pen)}
+                {formatAmountUseful(checklist.process.amount_pen)}
               </dd>
             </div>
             <div>
@@ -148,7 +148,7 @@ export default async function ChecklistPage({ params }: { params: Promise<{ ocid
           </h2>
           <ol className="mt-4 space-y-5">
             {checklist.items.map((item, index) => (
-              <li key={item.id} className="flex gap-3">
+              <li key={item.id} data-testid="checklist-item" className="flex gap-3">
                 <span
                   aria-hidden="true"
                   className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 border-brand-300 text-xs font-bold text-brand-800"

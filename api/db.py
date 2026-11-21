@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Iterator, Sequence
 from decimal import Decimal
 from typing import Annotated, Any
@@ -11,17 +12,21 @@ from fastapi import Depends, HTTPException
 
 from api.config import database_path
 
+logger = logging.getLogger(__name__)
+
 
 def get_connection() -> Iterator[duckdb.DuckDBPyConnection]:
     path = database_path()
     if not path.exists():
+        logger.error("DuckDB file not found at %s", path)
         raise HTTPException(
             status_code=503,
-            detail=f"Base de datos no disponible: {path}",
+            detail="Base de datos no disponible. Revisa la configuración del servidor.",
         )
     try:
         connection = duckdb.connect(str(path), read_only=True)
     except (duckdb.Error, OSError) as exc:
+        logger.error("Could not open DuckDB read-only at %s: %s", path, exc)
         raise HTTPException(
             status_code=503,
             detail="No se pudo abrir la base de datos en modo de solo lectura.",

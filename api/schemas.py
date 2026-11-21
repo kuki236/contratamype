@@ -60,6 +60,7 @@ class Award(BaseModel):
 class Contract(BaseModel):
     contract_id: str | None
     award_id: str | None
+    award_linked: bool
     amount_pen: float | None
     signed_date: date | None
     status: str | None

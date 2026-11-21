@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SearchFilters } from "@/lib/filters";
+import { MAX_QUERY_LENGTH, type SearchFilters } from "@/lib/filters";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { Meta } from "@/lib/types";
 
@@ -63,6 +63,7 @@ export function SearchForm({ meta, filters }: { meta: Meta; filters: SearchFilte
           name="q"
           type="search"
           defaultValue={filters.q}
+          maxLength={MAX_QUERY_LENGTH}
           placeholder="Ej.: laptops, limpieza, municipalidad"
           aria-describedby="q-help"
           className={`${inputClass} mt-2 py-3 text-base`}

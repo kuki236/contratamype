@@ -1,5 +1,6 @@
 import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "pdf-lib";
-import { formatDate, formatPEN } from "./format";
+import { formatAmountUseful, formatDate } from "./format";
+import { categoryLabel } from "./labels";
 import type { Checklist } from "./types";
 
 const PAGE_WIDTH = 595.28;
@@ -239,23 +240,18 @@ export async function buildChecklistPdf(checklist: Checklist): Promise<Uint8Arra
     checklist.process.mype_fit === true
       ? "Compatibilidad MYPE: compatible (heurística de compatibilidad MYPE, no elegibilidad legal)."
       : checklist.process.mype_fit === false
-        ? "Compatibilidad MYPE: no compatible (heurística de compatibilidad MYPE, no elegibilidad legal)."
-        : "Compatibilidad MYPE: sin clasificar en la base.",
+        ? "Compatibilidad MYPE: no marcada compatible (heurística de compatibilidad MYPE, no elegibilidad legal)."
+        : "Compatibilidad MYPE: sin clasificar en la base (heurística de compatibilidad MYPE, no elegibilidad legal).",
     { size: 9, lineHeight: 12 },
   );
 
   writer.heading("Datos clave de la fuente");
-  const amountText =
-    checklist.process.amount_pen === null
-      ? "No informado"
-      : checklist.process.amount_pen === 0
-        ? "S/ 0.00 (la fuente no informa un monto útil)"
-        : formatPEN(checklist.process.amount_pen);
+  const amountText = formatAmountUseful(checklist.process.amount_pen);
   const fields: Array<[string, string]> = [
     ["Entidad compradora", checklist.process.buyer_name ?? "No informada"],
     ["Departamento", checklist.process.department ?? "No informado"],
     ["Monto", amountText],
-    ["Categoría", checklist.process.category ?? "No informada"],
+    ["Categoría", categoryLabel(checklist.process.category)],
     ["Método", checklist.process.method ?? "No informado"],
     ["Publicación", formatDate(checklist.process.published_date)],
     [

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { OpportunityCard } from "@/components/opportunity-card";
 import { Pagination } from "@/components/pagination";
@@ -6,10 +7,10 @@ import { SearchForm } from "@/components/search-form";
 import { getMeta, getStats, searchOpportunities } from "@/lib/api";
 import {
   COHORT_YEAR,
-  hasActiveFilters,
   pageLabel,
   parseFilters,
   toOpportunityQuery,
+  toSearchParams,
 } from "@/lib/filters";
 import { formatPENCompact } from "@/lib/format";
 
@@ -33,6 +34,14 @@ export default async function HomePage({
     getStats(COHORT_YEAR),
     searchOpportunities(query),
   ]);
+  const outOfRange =
+    results.items.length === 0 && results.pages > 0 && filters.page > results.pages;
+  let hasNonMypeResults = false;
+  if (!outOfRange && results.total === 0 && filters.mype_only) {
+    const allResults = await searchOpportunities({ ...query, mype_only: false, page: 1 });
+    hasNonMypeResults = allResults.total > 0;
+  }
+  const firstPageParams = toSearchParams(filters, { page: 1 });
 
   return (
     <main className="flex-1 pb-4">
@@ -85,7 +94,8 @@ export default async function HomePage({
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-stone-200 pb-4">
           <div>
             <h2 id="resultados" className="text-2xl font-bold tracking-tight text-brand-950">
-              {results.total} {results.total === 1 ? "oportunidad" : "oportunidades"}
+              {results.total.toLocaleString("es-PE")}{" "}
+              {results.total === 1 ? "oportunidad" : "oportunidades"}
             </h2>
             <p className="mt-1 text-sm text-stone-600">
               {pageLabel(results)} · {filters.mype_only ? "Solo compatibles MYPE" : "Todas"} ·
@@ -100,9 +110,28 @@ export default async function HomePage({
           </a>
         </div>
 
-        {results.items.length === 0 ? (
+        {outOfRange ? (
+          <div
+            data-testid="page-out-of-range"
+            className="mt-8 rounded-2xl border border-dashed border-amber-300 bg-amber-50 px-6 py-14 text-center"
+          >
+            <h2 className="text-xl font-semibold text-brand-950">Página fuera de rango</h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-stone-700">
+              La página {filters.page.toLocaleString("es-PE")} no existe para esta búsqueda: hay{" "}
+              {results.pages.toLocaleString("es-PE")} página
+              {results.pages === 1 ? "" : "s"} con {results.total.toLocaleString("es-PE")} resultado
+              {results.total === 1 ? "" : "s"}.
+            </p>
+            <Link
+              href={`/?${firstPageParams.toString()}`}
+              className="mt-5 inline-flex rounded-lg bg-brand-800 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
+            >
+              Ir a la página 1
+            </Link>
+          </div>
+        ) : results.items.length === 0 ? (
           <div className="mt-8">
-            <EmptyState hasFilters={hasActiveFilters(filters)} />
+            <EmptyState filters={filters} hasNonMypeResults={hasNonMypeResults} />
           </div>
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2">

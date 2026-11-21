@@ -15,8 +15,19 @@ export function categoryLabel(value: string | null | undefined): string {
   return CATEGORY_LABELS[value] ?? value;
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  active: "Vigente",
+  cancelled: "Cancelado",
+  terminated: "Terminado",
+  complete: "Terminado",
+  completed: "Terminado",
+  pending: "Pendiente",
+};
+
 export function statusLabel(value: string | null | undefined): string {
-  return value && value.trim() ? value : "No informado";
+  const raw = value?.trim();
+  if (!raw) return "No informado";
+  return STATUS_LABELS[raw.toLowerCase()] ?? `${raw} (fuente)`;
 }
 
 export function methodLabel(value: string | null | undefined): string {
