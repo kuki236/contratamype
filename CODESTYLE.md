@@ -13,7 +13,7 @@
 
 - Python 3.13; `ruff format` y `ruff check`.
 - Type hints en funciones públicas; `pathlib` para rutas.
-- Polars/DuckDB para el audit y transformaciones; PostgreSQL para la app.
+- DuckDB/PyArrow para el audit, las transformaciones y el serving local; PostgreSQL 17 como adaptador pendiente.
 - Sin Spark: el bulk anual no lo justifica.
 - Comentarios solo para decisiones no obvias; no narrar lo que el código ya dice.
 - Errores explícitos con contexto; no silenciar excepciones.

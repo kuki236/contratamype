@@ -69,17 +69,18 @@ flowchart LR
     api[API OCDS\nspot-check] --> ingest
     ingest --> normalize[Normalización\nOCDS → star schema]
     normalize --> quality[Calidad\n10–12 checks]
-    quality --> pg[(PostgreSQL 17)]
+    quality --> duck[(DuckDB v1.0)]
     quality --> pq[Parquet/CSV]
     pq --> pbi[Power BI\nPBIP/PBIX]
-    pg --> web[Next.js\nbúsqueda/detalle]
+    duck --> readapi[API read-only]
+    readapi --> web[Next.js\nbúsqueda/detalle]
     web --> llm[LLM opcional\nGemini]
     web --> pdf[Checklist PDF]
     quality --> alerts[Digest email\nPower Automate adapter]
 ```
 
 - **Python** para ingesta, normalización, calidad y exports.
-- **DuckDB/Polars** para el audit y transformaciones locales; **PostgreSQL 17** para la app y el modelo SQL.
+- **DuckDB/PyArrow** para el audit, las transformaciones y el serving local; **PostgreSQL 17** como adaptador pendiente, no bloquea v1.0.
 - **Next.js (App Router, TypeScript)** para la web.
 - **Power BI** para el dashboard de mercado.
 - **Sin Spark:** el bulk anual es ~150 MB; Spark no aporta y complica el entorno.

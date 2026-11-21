@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from audit_ocds import amount_pen, iter_releases, party_department, sha256_file  # noqa: E402
 
 BUCKETS = (50_000, 100_000, 200_000, 400_000, 1_000_000)
+VALID_CATEGORIES = {"goods", "services", "works"}
 
 
 def percentile(values: list[float], p: float) -> float:
@@ -57,6 +58,8 @@ def profile(input_path: Path, year: str) -> dict:
                 category = tender.get("mainProcurementCategory")
                 if category:
                     categories[str(category)] += 1
+                    if str(category) not in VALID_CATEGORIES:
+                        stats["invalid_category"] += 1
                 else:
                     stats["invalid_category"] += 1
                 method = tender.get("procurementMethodDetails") or tender.get("procurementMethod")

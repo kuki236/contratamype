@@ -53,7 +53,7 @@ No corras la suite entera en cada cambio. El default es rápido:
 
 ## 4. Boundaries
 
-- `pipeline/` (Python) es la única fuente del modelo y la calidad.
+- `contratamype/` (Python) es la única fuente del modelo y la calidad.
 - `web/` (Next.js) lee PostgreSQL/API; no recalcula reglas de negocio ni duplica la regla MYPE.
 - `dashboard/` (Power BI) lee exports del pipeline; no consulta la base de la web.
 - `docs/` contiene decisiones, diccionario y evidencia.

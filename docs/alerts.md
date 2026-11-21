@@ -42,8 +42,12 @@ documentado. Cuando exista licencia:
 1. Programar el pipeline y el digest (Task Scheduler o Power Automate Desktop).
 2. Disparar el flujo con `power_automate_payload.json` (o subir el CSV a OneDrive).
 3. Enviar un correo con `subject` y una tabla HTML construida desde `rows`.
-4. No reenviar: el flujo confía en `state.json`; si se ejecuta en otra máquina,
+4. Incluir `disclaimer`, `source` y `license` del payload, y un enlace de baja.
+5. No reenviar: el flujo confía en `state.json`; si se ejecuta en otra máquina,
    sincronizar el estado o usar una tabla en SharePoint con el OCID como clave.
+
+Solo se envían alertas a destinatarios que dieron consentimiento. El digest no
+implementa el envío ni la baja: el adaptador debe incluir ambos en el correo.
 
 ## 4. Límites
 

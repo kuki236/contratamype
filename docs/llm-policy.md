@@ -12,9 +12,12 @@ Solo campos que existen en el pipeline:
 - `amount_pen`, `currency`
 - `published_date`, `tender_start`, `tender_end`
 - `buyer_name`, `department`
-- awards/contracts y proveedores, si existen
+- awards/contracts y RUC de proveedores, si existen
 
 No se envían nombres de personas, correos, teléfonos ni documentos de identidad.
+Los nombres de proveedores pueden corresponder a personas naturales: el adaptador
+LLM no los envía; usa el RUC o un identificador neutro. La UI puede mostrarlos
+como dato público de la fuente.
 
 ## 2. Salida obligatoria
 

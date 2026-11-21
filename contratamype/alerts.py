@@ -132,6 +132,13 @@ def build_digest(
         "window": {"since": since.isoformat(), "until": until.isoformat() if until else None},
         "count": len(rows),
         "rows": rows,
+        "disclaimer": "Heurística de compatibilidad MYPE, no elegibilidad legal.",
+        "source": "OECE — Portal de Contrataciones Abiertas (OCDS)",
+        "license": "CC BY 4.0",
+        "consent": (
+            "Enviar solo a destinatarios que aceptaron recibir alertas; "
+            "incluir un enlace de baja en cada envío."
+        ),
     }
     json_path = out_dir / "alert_digest.json"
     json_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

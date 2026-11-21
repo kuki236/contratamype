@@ -1,6 +1,6 @@
 {
   "cohort": "dataSegmentation 2025",
-  "input": "C:\\Users\\sebas\\Desktop\\practicas\\projects\\contratamype\\data\\raw\\ocds\\2025.jsonl.gz",
+  "input": "data/raw/ocds/2025.jsonl.gz",
   "input_bytes": 148719573,
   "input_sha256": "65444cad90df5c559584d75124884734bff2875616de716d949aa5b858bd160b",
   "records": 59141,
