@@ -102,11 +102,13 @@ flowchart LR
 ### MYPE fit
 Regla transparente y configurable:
 ```
-mype_fit = amount_pen <= threshold
+mype_fit = amount_pen > 0
+           AND amount_pen <= threshold
            AND category IN target_categories
            AND department IN target_departments
 ```
 - `threshold` default propuesto: **S/ 200,000** (59.7% de la cohorte 2025), configurable; se elige con la distribución real y no se hardcodea.
+- `amount_pen = 0` significa **no informado**; no se marca como compatible porque no se puede evaluar el monto.
 - La etiqueta es **“compatible”**, no elegibilidad legal. Disclaimer visible.
 - Se documenta la regla y se puede cambiar por configuración.
 
