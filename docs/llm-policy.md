@@ -51,7 +51,9 @@ Si existe key válida:
 ## 6. Evaluación (10–20 oportunidades reales)
 
 Muestra: oportunidades completas, con descripción faltante, monto 0, fechas
-inicio=fin y sin award/contrato.
+inicio=fin y sin award/contrato. La muestra reproducible de 15 casos está en
+`docs/llm-eval-sample-2025.json` (3 por bucket: completa, monto 0, inicio=fin,
+sin award, contrato con award ausente).
 
 | Criterio | Pasa si |
 |---|---|
