@@ -89,6 +89,19 @@ flowchart LR
 **Stack:** Python 3.13, DuckDB/PyArrow, FastAPI, Next.js (App Router, TypeScript),
 Power BI (PBIP/PBIX), Playwright, pytest, Ruff.
 
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| `contratamype/` | OCDS ingestion, normalization, DuckDB, 12 checks, exports and digest |
+| `api/` | Read-only FastAPI over DuckDB |
+| `web/` | Next.js App Router, search, detail, checklist and PDF |
+| `dashboard/` | Power BI PBIP/PBIX and screenshots |
+| `tests/e2e/` | Pipeline, alerts and release E2E |
+| `tools/` | Audits and reproducible samples |
+| `docs/` | Decisions, dictionary, quality, findings and limits |
+| `data/raw/`, `data/processed/`, `artifacts/` | Local data/artifacts (gitignored) |
+
 ## Running it
 
 ```bash
@@ -111,6 +124,19 @@ python -m contratamype digest --artifacts artifacts/2025 --since 2025-01-01
 pytest -m fast     # seconds, default
 pytest -m slow     # full 2025 bulk, checkpoint only
 ```
+
+## Testing
+
+| Tier | Command | When | Coverage |
+|---|---|---|---|
+| Fast | `pytest -m fast` | After every change; seconds | Deterministic fixtures, gate, exports, digest, release |
+| Slow | `pytest -m slow` | Checkpoint/release only; ~25 s | Real 2025 bulk (local, gitignored) |
+| Full | `pytest -m "fast or slow"` | Before closing a release | Fast + slow |
+| Web | `cd web && npx playwright test` | When touching web/API | 8 E2E on a deterministic seed |
+| Power BI | `powerbi-report-author validate` + screenshots | When touching the dashboard | PBIR/PBIP and visual evidence |
+
+`pytest.ini` excludes `slow` by default. CI runs `pytest -m fast` plus Playwright;
+the bulk is never uploaded.
 
 ## Quality and limits
 
