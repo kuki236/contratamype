@@ -114,3 +114,11 @@ chore: release v1.0.0
 - `ruff`/ESLint/Prettier pasan.
 - No hay datos crudos, secretos ni PII innecesaria.
 - Commit hecho.
+
+## 10. Trabajo en paralelo (subagentes)
+
+- Un subagente por boundary: pipeline (`contratamype/`, tests de pipeline), web/API (`api/`, `web/`), dashboard (`dashboard/`, `docs/powerbi.md`), release (`scripts/`, test de release), docs (`README*`, `ROADMAP.md`, `SPECS.md`, `AGENTS.md`).
+- Dos agentes **nunca** editan el mismo archivo. Si un cambio cruza boundaries, se secuencia.
+- Los subagentes no hacen `git commit`; el agente principal revisa, corre los tests afectados y commitea.
+- El agente principal deja la suite completa (`pytest -m "fast or slow"` + Playwright + build) para el cierre, no para cada edición.
+- Si un subagente se bloquea por una acción manual (Power BI Desktop, login, API key), lo reporta y sigue con lo verificable; no se queda esperando.
