@@ -55,7 +55,7 @@ RAW_TABLES = {
 }
 
 DATE_COLUMNS = {"published_date", "tender_start", "tender_end", "award_date", "signed_date"}
-FLOAT_COLUMNS = {"amount_pen"}
+DECIMAL_COLUMNS = {"amount_pen"}
 INT_COLUMNS = {"segmentation_year"}
 BOOL_COLUMNS = {"mype_fit", "dates_valid", "period_start_eq_end"}
 
@@ -123,8 +123,8 @@ def _insert(
         values = [row[index] for row in rows]
         if column in DATE_COLUMNS:
             array = pa.array([_parse_date(value) for value in values], type=pa.date32())
-        elif column in FLOAT_COLUMNS:
-            array = pa.array(values, type=pa.float64())
+        elif column in DECIMAL_COLUMNS:
+            array = pa.array(values, type=pa.decimal128(18, 2))
         elif column in INT_COLUMNS:
             array = pa.array(values, type=pa.int64())
         elif column in BOOL_COLUMNS:

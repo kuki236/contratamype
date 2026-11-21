@@ -5,10 +5,12 @@ from __future__ import annotations
 import unicodedata
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
 from contratamype.config import CATEGORY_VALUES, DEPARTMENT_CODES, Settings
+
+CENT = Decimal("0.01")
 
 
 @dataclass(slots=True)
@@ -37,18 +39,19 @@ def _date_value(value: Any) -> tuple[str | None, bool]:
     return parsed.isoformat(), True
 
 
-def _amount(value: dict[str, Any] | None) -> float | None:
+def _amount(value: dict[str, Any] | None) -> Decimal | None:
     if not value:
         return None
     raw = value.get("amount_PEN")
     if raw is None:
         raw = value.get("amount")
-    if raw is None:
+    if raw is None or isinstance(raw, bool):
         return None
     try:
-        return float(raw)
-    except (TypeError, ValueError):
+        amount = Decimal(str(raw)).quantize(CENT, rounding=ROUND_HALF_UP)
+    except (InvalidOperation, ValueError):
         return None
+    return amount if amount.is_finite() else None
 
 
 def _normalize_department(value: Any) -> str | None:
@@ -194,7 +197,8 @@ def normalize_release(release: dict[str, Any], settings: Settings) -> Normalized
 
     mype_fit = (
         amount is not None
-        and Decimal(str(amount)) <= settings.mype_threshold
+        and amount > 0
+        and amount <= settings.mype_threshold
         and category in CATEGORY_VALUES
         and category in settings.target_categories
         and (not settings.target_departments or department in settings.target_departments)

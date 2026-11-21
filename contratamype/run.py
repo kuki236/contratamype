@@ -61,6 +61,7 @@ def run_pipeline(input_path: Path, settings: Settings) -> dict:
             quality,
             input_sha256,
             timings,
+            settings,
         )
         summary["run_manifest"] = str(manifest_path)
         return summary

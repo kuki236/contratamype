@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from datetime import UTC, datetime
+from importlib import metadata
 from pathlib import Path
 
 import duckdb
@@ -34,6 +36,29 @@ def sha256_file(path: Path) -> str:
 
 def _sql_path(path: Path) -> str:
     return path.as_posix().replace("'", "''")
+
+
+def _pipeline_version() -> str:
+    try:
+        return metadata.version("contratamype")
+    except metadata.PackageNotFoundError:
+        return "unknown"
+
+
+def _git_sha() -> str:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=Path(__file__).resolve().parent,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return "unknown"
+    sha = result.stdout.strip()
+    return sha if result.returncode == 0 and sha else "unknown"
 
 
 def write_quality_report(report: dict, artifacts_dir: Path) -> Path:
@@ -88,6 +113,7 @@ def write_manifest(
     quality: dict,
     input_sha256: str,
     timings: dict,
+    settings: Settings,
 ) -> Path:
     artifact_hashes = {
         name: sha256_file(artifacts_dir / name)
@@ -98,6 +124,14 @@ def write_manifest(
         "generated_at": datetime.now(UTC).isoformat(),
         "input": summary["input"],
         "input_sha256": input_sha256,
+        "settings": {
+            "mype_threshold": str(settings.mype_threshold),
+            "target_categories": list(settings.target_categories),
+            "target_departments": list(settings.target_departments),
+            "cohort_year": settings.cohort_year,
+            "pipeline_version": _pipeline_version(),
+            "git_sha": _git_sha(),
+        },
         "counts": {
             key: summary[key]
             for key in (

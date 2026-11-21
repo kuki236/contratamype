@@ -26,20 +26,20 @@ dashboard usan esa cohorte por defecto.
 | `description` | VARCHAR | Descripción oficial; puede faltar |
 | `category` | VARCHAR | `goods`, `services`, `works`; otro valor falla el gate |
 | `method` | VARCHAR | `procurementMethodDetails`, fallback `procurementMethod` |
-| `amount_pen` | DECIMAL(18,2) | `amount_PEN`, fallback `amount`; 0 = no informado |
+| `amount_pen` | DECIMAL(18,2) | `amount_PEN`, fallback `amount`; se parsea como `Decimal` exacto (no float); 0 = no informado |
 | `currency` | VARCHAR | Moneda original (usualmente `PEN`) |
 | `published_date` | DATE | `tender.datePublished`, fallback `release.date` |
 | `tender_start` | DATE | Inicio del plazo (`tenderPeriod.startDate`) |
 | `tender_end` | DATE | Fin del plazo (`tenderPeriod.endDate`) |
 | `status` | VARCHAR | Estado del `tender` |
-| `buyer_id` | VARCHAR | `buyer.id`; obligatorio |
+| `buyer_id` | VARCHAR | `buyer.id`; el check exige `buyer_id` **o** `buyer_name` |
 | `buyer_name` | VARCHAR | `buyer.name` |
 | `department` | VARCHAR | Departamento del comprador, sin tildes y en mayúsculas |
 | `department_code` | VARCHAR | Código INEI de 2 dígitos; nulo si el departamento no es válido |
 | `segmentation_id` | VARCHAR | `dataSegmentation.id` (ej. `2025-02`) |
 | `segmentation_year` | INTEGER | Año de la cohorte |
-| `mype_fit` | BOOLEAN | Heurística calculada por el pipeline (ver §6) |
-| `dates_valid` | BOOLEAN | `false` si alguna fecha no parsea |
+| `mype_fit` | BOOLEAN | Heurística calculada por el pipeline (ver §6); nunca se recalcula en la web |
+| `dates_valid` | BOOLEAN | `false` solo si una fecha presente no parsea; una fecha ausente no falla |
 | `period_start_eq_end` | BOOLEAN | `true` si inicio = fin (dato observado, no error) |
 
 ## 3. `buyers` y `suppliers`
@@ -49,9 +49,15 @@ dashboard usan esa cohorte por defecto.
 | `buyer_id` / `supplier_id` | VARCHAR | Identificador de la parte en OCDS |
 | `name` | VARCHAR | Nombre oficial |
 | `ruc` | VARCHAR | RUC peruano cuando `additionalIdentifiers` trae `scheme = PE-RUC` |
-| `department` | VARCHAR | Departamento declarado; puede faltar |
+| `department` | VARCHAR | Departamento declarado; en proveedores del bulk está siempre nulo (ver nota) |
 
 `suppliers` se deduplica por `supplier_id`; `buyers` por `buyer_id`.
+
+**Limitación medida en proveedores:** los 56,734 proveedores del bulk tienen
+`department` nulo. Las partes con rol `supplier` suelen traer solo
+`countryName`, no `address.department`. El check `supplier_address_present` lo
+reporta como warning de fuente, no como bug del pipeline. El departamento del
+comprador sí está completo (2,994/2,994).
 
 ## 4. `awards`
 
@@ -86,28 +92,43 @@ bloqueante; no se fabrican awards. Ver `docs/data-profile-2025.md`.
 ## 6. Regla MYPE
 
 ```text
-mype_fit = amount_pen <= mype_threshold
+mype_fit = amount_pen IS NOT NULL
+           AND amount_pen > 0
+           AND amount_pen <= mype_threshold
            AND category IN ('goods', 'services')
+           AND (target_departments vacío OR department IN target_departments)
 ```
 
 - `mype_threshold` default: **S/ 200,000**, configurable con `--mype-threshold`.
+- Un monto nulo o **0 no se marca compatible**: 0 significa “no informado”, no
+  “costo cero”. Tampoco se asume compatibilidad por desconocer el monto.
 - `target_departments` vacío por defecto (todas las regiones).
 - La etiqueta visible es **“compatible”**; no es elegibilidad legal.
 - La regla se calcula una sola vez en el pipeline; la web y el dashboard leen
   `mype_fit` y no la recalculan.
+- Resultado bulk 2025: **29,921 oportunidades** de 59,141 procesos de la
+  cohorte (**50.6%**). Los 4,565 registros de la cohorte con monto 0 y categoría
+  objetivo quedan fuera de la etiqueta; la versión anterior de la regla los
+  incluía.
 
 ## 7. Artefactos
 
 | Archivo | Uso |
 |---|---|
-| `quality_report.json` | 12 checks con conteos, SQL y gate |
-| `run_manifest.json` | SHA-256 del input, conteos, timings y hashes de payloads |
+| `quality_report.json` | 12 checks con conteos, SQL, `failed_sample` (hasta 5 filas) y sección `audits` |
+| `run_manifest.json` | SHA-256 del input, conteos, `settings`, timings y hashes de payloads |
 | `checksums.sha256` | SHA-256 de los payloads exportados |
 | `tenders.parquet`, `awards.parquet`, `contracts.parquet`, `buyers.parquet`, `suppliers.parquet` | Power BI / análisis |
 | `mype_opportunities.csv` | Oportunidades de la cohorte con `mype_fit = true` |
 
 `checksums.sha256` no cubre `run_manifest.json` ni a sí mismo para evitar una
 dependencia circular; el manifest sí lista los hashes de los payloads.
+
+`run_manifest.json` incluye un bloque `settings` con `mype_threshold` (string),
+`target_categories`, `target_departments`, `cohort_year`, `pipeline_version`
+(tomado de los metadatos del paquete) y `git_sha` (HEAD del repo, o `unknown`
+si no está disponible). Así una corrida publicada se puede reproducir sin
+adivinar la regla MYPE ni la versión del código.
 
 ## 8. Campos que no se usan
 

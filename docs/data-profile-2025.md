@@ -43,6 +43,9 @@
 | ≤ S/ 400,000 | 45,237 | 76.5% |
 | ≤ S/ 1,000,000 | 52,649 | 89.0% |
 
+Estos buckets son **solo de monto**: incluyen procesos con monto 0 y obras, por
+lo que no equivalen a `mype_fit`. La regla MYPE final se mide en §5.
+
 **Métodos principales:** Adjudicación Simplificada 13,929; Licitación Pública Abreviada 10,227; Concurso Público Abreviado 9,380; Subasta Inversa Electrónica 7,193; Comparación de Precios 5,097; Contratación Directa 3,516.
 
 ## 3. Calidad
@@ -50,17 +53,28 @@
 | Regla | Global (124,538) | Cohorte 2025 (59,141) |
 |---|---:|---:|
 | `amount_zero` | 8,586 (6.9%) | 4,952 (8.4%) |
-| `period_start_eq_end` | 116,832 (93.8%) | 55,166 (93.3%) |
 | `period_missing` | 7,703 (6.2%) | 3,975 (6.7%) |
+| `period_start_eq_end` | 116,832 (93.8%) | 55,166 (93.3%) |
+| `period_quality` (faltante o inicio = fin) | 124,535 (99.998%) | 59,141 (100%) |
 | `awards_without_supplier` | 1,741 | 62 |
 | `contracts_without_award` | 0 | 0 |
 | `missing_department` | 0 | 0 |
 | `invalid_category` | 0 | 0 |
 | `amount_missing` | 0 | 0 |
 
+**Proveedores sin dirección:** 56,734 de 56,734 (100%) tienen
+`department` nulo. Las partes proveedoras del bulk suelen traer solo
+`countryName`. Es una limitación de la fuente, no un error del pipeline; el
+check `supplier_address_present` la reporta como warn y no se inventa el
+departamento.
+
 **Implicaciones de producto:**
-- El **plazo** no es confiable: en 93.3% de la cohorte `tenderPeriod.startDate == endDate` y 6.7% no tiene período. La app debe mostrar “fecha de referencia” y enlace al portal oficial; las alertas se basan en **oportunidades nuevas**, no en cuentas regresivas.
-- 8.4% tiene monto 0: mostrar “monto no informado”, no S/ 0.
+- El **plazo** no es confiable: en 100% de la cohorte falta el período o
+  `tenderPeriod.startDate == endDate`. La app debe mostrar “fecha de referencia”
+  y enlace al portal oficial; las alertas se basan en **oportunidades nuevas**,
+  no en cuentas regresivas.
+- 8.4% tiene monto 0: mostrar “monto no informado”, no S/ 0. La regla MYPE
+  excluye esos registros.
 - Los `awards` sin proveedor son 0.13% en la cohorte; el resto se puede modelar.
 
 ## 4. API vs bulk (spot-check)
@@ -69,14 +83,35 @@
 - **9/20 OCIDs encontrados** en el bulk; **0 diferencias** en título, categoría, monto y segmentación.
 - 11 no están en el bulk porque la API está más fresca (actualizaciones posteriores a la generación del archivo anual).
 - **Decisión:** bulk como base reproducible; API para refresco incremental/spot-check, no para reconstruir el volumen completo.
+- **En el pipeline:** este spot-check **no se ejecuta**; `quality_report.json`
+  registra `api_vs_bulk_spot_check` con estado `not_run` y la razón (sin red).
+  La comparación de arriba es una verificación manual del perfil, no un
+  resultado que cada corrida pueda reproducir offline.
 
-## 5. Umbral MYPE propuesto
+## 5. Regla MYPE y umbral
 
-No existe un flag MYPE en OCDS. La regla será **monto + rubro + región**, configurable y etiquetada como **“compatible”**, nunca como elegibilidad legal.
+No existe un flag MYPE en OCDS. La regla es **monto + rubro + región**,
+configurable y etiquetada como **“compatible”**, nunca como elegibilidad legal.
 
-- **Default propuesto: S/ 200,000** → 59.7% de la cohorte; deja fuera obras y procesos grandes, pero sigue siendo amplio.
-- Alternativas: S/ 100,000 (38.8%, más selectivo) o S/ 400,000 (76.5%, demasiado amplio para llamarlo MYPE).
-- El umbral se guarda en configuración y se muestra en la UI; no se hardcodea.
+```text
+mype_fit = amount_pen > 0
+           AND amount_pen <= 200,000
+           AND category IN (goods, services)
+           AND (target_departments vacío OR department IN target_departments)
+```
+
+- Un monto 0 o nulo **no** se marca compatible: 0 significa “no informado”.
+- **Resultado bulk 2025: 29,921 procesos compatibles (50.6% de la cohorte de
+  59,141).** Son 4,565 menos que la versión anterior de la regla, que incluía
+  montos 0; los 387 restantes de `amount_zero` de la cohorte son obras, que no
+  están en el rubro objetivo.
+- La tabla de umbrales de §2 es solo de **monto** (incluye 0 y obras) y no debe
+  citarse como participación MYPE. Bajo la regla final, el umbral de S/ 200,000
+  deja una oportunidad compatible en 50.6% de la cohorte.
+- Alternativas de umbral (solo monto): S/ 100,000 (38.8%, más selectivo) o
+  S/ 400,000 (76.5%, demasiado amplio para llamarlo MYPE).
+- El umbral se guarda en configuración y en el bloque `settings` de
+  `run_manifest.json`; no se hardcodea en la web.
 
 ## 6. Decisión de alcance v1.0.0
 
@@ -105,12 +140,14 @@ Artefactos: `docs/data-profile-2025.json`, `docs/data-profile-2025.md` y `docs/c
 - **5,128 de 107,301 contratos (4.8%)** referencian un `awardID` que no aparece en el `compiledRelease`, distribuidos en 3,855 OCIDs.
 - El 100% de los contratos trae `awardID` no vacío (`contracts_without_award = 0` en la cohorte); la brecha es de referencia, no de campo.
 - **Decisión:** `contract_award_linked` es un check **warn**, no bloqueante. El snapshot no permite reconstruir el award faltante y fabricarlo violaría la fuente. El conteo y la muestra quedan en `quality_report.json`; la app debe mostrar el contrato sin inventar proveedor.
-- Los checks **fail** que bloquean exports son: esquema raw, OCID único, título, categoría, departamento, comprador, monto no negativo y fechas parseables.
+- Los checks **fail** que bloquean exports son: esquema raw (parseo, OCID, `tender` y título), OCID único, comprador, categoría, departamento, fechas parseables y monto no negativo.
+- `supplier_address_present` es **warn**: los 56,734 proveedores del bulk no traen departamento. Es una limitación de la fuente, no del pipeline.
 
 ## 9. Limitaciones
 
 - Un solo año y un snapshot de actualizaciones; no es una serie histórica limpia.
-- Fechas de plazo incompletas o con inicio = fin.
-- La API es beta y puede cambiar.
+- Fechas de plazo incompletas o con inicio = fin (100% de la cohorte sin cronograma utilizable).
+- Proveedores sin `address.department`: 100% en el bulk. No se imputa región.
+- La API es beta y puede cambiar; el spot-check API-vs-bulk no corre en el pipeline.
 - Los nombres de entidades/proveedores pueden tener ruido de codificación.
 - Este perfil describe datos, no elegibilidad legal ni calidad de la gestión.
