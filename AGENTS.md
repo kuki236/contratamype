@@ -49,7 +49,7 @@ No corras la suite entera en cada cambio. El default es rápido:
 | **Full** | `pytest -m "fast or slow"` | Antes de cerrar un checkpoint/release | Fast + slow. No en cada edición. |
 | **Power BI** | `powerbi-report-author validate ...` + capturas | Al tocar el dashboard | PBIR/PBIP, Desktop y screenshots. |
 
-`pytest.ini` excluye `slow` por defecto (`addopts = -m "not slow"`). CI corre solo fast; el bulk es local. Si un test lento no puede correr (bulk ausente), se salta con un mensaje explícito, no se borra.
+`pytest.ini` excluye `slow` por defecto (`addopts = -m "not slow"`). CI corre solo fast; el bulk es local. El CI también ejecuta Playwright con el seed determinista; el bulk nunca se sube. Si un test lento no puede correr (bulk ausente), se salta con un mensaje explícito, no se borra.
 
 ## 4. Boundaries
 

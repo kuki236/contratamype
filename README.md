@@ -139,8 +139,8 @@ pytest -m slow
 | Web | `cd web && npx playwright test` | Al tocar web/API | 8 E2E con seed determinista |
 | Power BI | `powerbi-report-author validate` + capturas | Al tocar dashboard | PBIR/PBIP y evidencia visual |
 
-`pytest.ini` excluye `slow` por defecto. El CI corre solo `pytest -m fast`; el bulk
-nunca se sube al repo.
+`pytest.ini` excluye `slow` por defecto. El CI corre `pytest -m fast` y Playwright
+con el seed determinista; el bulk nunca se sube al repo.
 
 ## Calidad y límites
 
