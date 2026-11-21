@@ -97,7 +97,7 @@ python -m contratamype run \
   --db data/processed/contratamype.duckdb
 
 # 2. API
-uvicorn api.main:app --port 8000
+uvicorn api.app:app --port 8000
 
 # 3. Web
 cd web && npm install && npm run dev

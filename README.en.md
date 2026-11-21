@@ -99,13 +99,13 @@ python -m contratamype run \
   --db data/processed/contratamype.duckdb
 
 # 2. Read-only API
-uvicorn api.main:app --port 8000
+uvicorn api.app:app --port 8000
 
 # 3. Web
 cd web && npm install && npm run dev
 
 # 4. Alert digest
-python -m contratamype digest --since 2025-01-01
+python -m contratamype digest --artifacts artifacts/2025 --since 2025-01-01
 
 # 5. Tests
 pytest -m fast     # seconds, default

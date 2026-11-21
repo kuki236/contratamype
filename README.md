@@ -105,11 +105,11 @@ python -m contratamype run \
   --db data/processed/contratamype.duckdb
 
 # 2. API y web (ver docs/web.md)
-uvicorn api.main:app --port 8000
+uvicorn api.app:app --port 8000
 cd web && npm install && npm run dev
 
 # 3. Alertas
-python -m contratamype digest --since 2025-01-01
+python -m contratamype digest --artifacts artifacts/2025 --since 2025-01-01
 
 # 4. Tests: rápido por defecto; lento solo en checkpoint
 pytest -m fast
