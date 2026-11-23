@@ -84,7 +84,7 @@ La build no necesita la API encendida: las páginas que consultan datos son din�
 | `CONTRATAMYPE_API_URL` | Web | `http://127.0.0.1:8000` | Base URL que usan los Server Components y la ruta del PDF. |
 | `CONTRATAMYPE_EXPLAINER` | Web | `template` | `template` o `gemini`. Gemini solo redacta la introducción; sin key o si falla, se usa la plantilla. |
 | `GEMINI_API_KEY` | Web | vacío | Key del adaptador Gemini; vive en `web/.env.local`, nunca en Git. |
-| `GEMINI_MODEL` | Web | `gemini-2.0-flash` | Modelo usado por el adaptador. |
+| `GEMINI_MODEL` | Web | `gemini-3.5-flash` | Modelo usado por el adaptador. |
 | `CONTRATAMYPE_API_PORT` | Playwright | `8010` | Puerto del `webServer` de la API en tests. |
 | `CONTRATAMYPE_WEB_PORT` | Playwright | `3100` | Puerto del `webServer` de Next.js en tests. |
 | `CONTRATAMYPE_TEST_DB` | Playwright | `%TEMP%\contratamype-e2e\contratamype-test.duckdb` | Ruta alternativa del fixture determinista. |

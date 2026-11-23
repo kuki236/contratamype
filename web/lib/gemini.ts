@@ -29,7 +29,7 @@ function officialFields(detail: OpportunityDetail): Record<string, unknown> {
 export async function geminiIntro(detail: OpportunityDetail): Promise<string | null> {
   const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) return null;
-  const model = process.env.GEMINI_MODEL?.trim() || "gemini-2.0-flash";
+  const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash";
   const prompt = [
     "Redacta 2 o 3 frases en español claro para una MYPE sobre este proceso de compras públicas.",
     "Usa solo los campos oficiales del JSON. No inventes requisitos, documentos, fechas ni montos.",
