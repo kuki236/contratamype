@@ -299,21 +299,11 @@ muestran el selector en “Todas” (ambos años).
 
 No se publica en Power BI Service en v1.1. El PBIP es local.
 
-### PBIX pendiente (manual)
+### PBIX
 
-En esta build de Power BI Desktop, `Archivo → Guardar una copia` solo ofreció
-el formato de proyecto `.pbip`; no se generó un `.pbix`. Si se necesita el
-binario para el release:
-
-1. Abrir `dashboard/ContrataMYPE.pbip` en Desktop.
-2. `Archivo → Guardar una copia`.
-3. Elegir una ubicación fuera de `dashboard/` o confirmar que el nombre no
-   sobrescriba el PBIP.
-4. Si la build ofrece `Power BI file (*.pbix)`, guardarlo como
-   `dashboard/ContrataMYPE.pbix`; si no, exportar desde una build que lo
-   soporte.
-
-El gate de release acepta el `.pbip` como artefacto de dashboard.
+El binario está disponible en `dashboard/ContrataMYPE.pbix` (39.4 MB),
+exportado el 23/11/2026 e incluido en el repositorio y en el release v1.1.0.
+Se abre con Power BI Desktop; el PBIP sigue siendo la fuente editable.
 
 ## 8. Límites conocidos
 
