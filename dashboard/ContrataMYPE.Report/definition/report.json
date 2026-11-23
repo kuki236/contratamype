@@ -11,7 +11,7 @@
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "ContrataMYPETheme-a7c4e912.json",
+      "name": "ContrataMYPETheme-b8d5f023.json",
       "reportVersionAtImport": {
         "visual": "2.11.0",
         "report": "3.4.0",
@@ -37,8 +37,8 @@
       "type": "RegisteredResources",
       "items": [
         {
-          "name": "ContrataMYPETheme-a7c4e912.json",
-          "path": "ContrataMYPETheme-a7c4e912.json",
+          "name": "ContrataMYPETheme-b8d5f023.json",
+          "path": "ContrataMYPETheme-b8d5f023.json",
           "type": "CustomTheme"
         }
       ]

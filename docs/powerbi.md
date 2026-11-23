@@ -1,8 +1,8 @@
 # Power BI — ContrataMYPE
 
-Dashboard local del mercado de compras públicas del Perú para la cohorte
-`dataSegmentation` 2025. Se construye como PBIP (reporte PBIR + modelo TMDL),
-lee los Parquet exportados por el pipeline y no consulta la base de la web.
+Dashboard local del mercado de compras públicas del Perú para las cohortes
+`dataSegmentation` **2024 y 2025**. Se construye como PBIP (reporte PBIR + modelo
+TMDL), lee los Parquet exportados por el pipeline y no consulta la base de la web.
 
 ## 1. Archivos
 
@@ -31,8 +31,13 @@ negocio.
 - Fuente: OECE — Portal de Contrataciones Abiertas, estándar OCDS.
 - Licencia: datos abiertos **CC BY 4.0**.
 - Bulk: `https://data.open-contracting.org/es/publication/135/download?name=2025.jsonl.gz`.
-- Ventana v1.0: cohorte `dataSegmentation` 2025. El modelo carga los 124,538
-  registros exportados, pero las dos páginas filtran la cohorte 2025.
+- Los exports de `artifacts/2025/` incorporan los snapshots 2024 y 2025; el
+  `run_manifest.json` del pipeline conserva la procedencia y checksums.
+- Ventana v1.1: cohortes `dataSegmentation` **2024 y 2025**.
+- El modelo carga **232,989** registros. Las cohortes del reporte suman
+  **123,931** procesos: **64,783** de 2024 y **59,148** de 2025.
+- Las filas históricas 2013–2023 existen en el modelo para trazabilidad, pero
+  las dos páginas las excluyen con el filtro de cohorte `2024–2025`.
 - Los Parquet de entrada son los del pipeline:
 
 ```text
@@ -49,27 +54,30 @@ pipeline y aquí se lee, no se recalcula.
 
 ### Parámetro de ruta
 
-El modelo usa el parámetro de Power Query `DataFolder`:
+El TMDL versionado usa el parámetro de Power Query `DataFolder` con una ruta
+sanitizada:
 
 ```text
 C:\contratamype\artifacts\2025
 ```
 
 Está en
-`dashboard/ContrataMYPE.SemanticModel/definition/expressions.tmdl`. Si el
-proyecto se mueve de máquina, se cambia esa ruta y se actualiza el modelo.
+`dashboard/ContrataMYPE.SemanticModel/definition/expressions.tmdl`. Para
+refrescar en una máquina local hay que apuntarlo temporalmente a la carpeta real
+de `artifacts/2025`, refrescar y volver a dejarlo en la ruta sanitizada. La ruta
+local del usuario no se commitea.
 
 ## 3. Modelo
 
 ### Tablas
 
-| Tabla | Tipo | Filas esperadas | Uso |
+| Tabla | Tipo | Filas | Uso |
 |---|---|---:|---|
-| `Tenders` | Hecho | 124,538 | Procesos, montos, categoría, método, fechas, MYPE. |
-| `Awards` | Hecho | 107,750 | Adjudicaciones; medidas de contexto. |
-| `Contracts` | Hecho | 107,301 | Contratos; medidas de contexto. |
-| `Buyers` | Dimensión | 2,994 | Nombre de la entidad compradora. |
-| `Suppliers` | Dimensión | 56,734 | Proveedor adjudicado. |
+| `Tenders` | Hecho | 232,989 | Procesos, montos, categoría, método, fechas, MYPE. |
+| `Awards` | Hecho | 201,299 | Adjudicaciones; medidas de contexto. |
+| `Contracts` | Hecho | 195,583 | Contratos; medidas de contexto. |
+| `Buyers` | Dimensión | 3,080 | Nombre de la entidad compradora. |
+| `Suppliers` | Dimensión | 91,879 | Proveedor adjudicado. |
 
 `Tenders` conserva las columnas técnicas en inglés (`ocid`, `buyer_id`,
 `department_code`) y expone nombres en español para el reporte (`Proceso`,
@@ -81,7 +89,7 @@ Columnas calculadas de presentación:
 - `Compatibilidad MYPE`: etiqueta legible de `mype_fit`.
 - `Rango de monto`: tramos de monto referencial, con orden oculto.
 - `Mes`: mes de publicación en español, ordenado por `month_order`.
-- `Año de publicación`: apoyo para el filtro visual de la evolución mensual.
+- `Año de publicación`: año calendario de publicación.
 
 Ninguna de estas columnas vuelve a evaluar la regla MYPE. La regla corregida del
 pipeline exige `amount_pen > 0`, además del umbral de monto y las categorías
@@ -165,18 +173,32 @@ reporta como “no informado”. `DIVIDE` evita división por cero y
 
 ## 4. Páginas
 
-### Página 1 — Mercado
+### Selector de año
 
-Filtro de página: `Tenders[Año de cohorte] = 2025`.
+Ambas páginas tienen un selector de cohorte con los valores **2024, 2025** y la
+opción de todos los años. En Power BI Desktop en español, la opción sin año
+seleccionado se rotula **“Todas”**; equivale a “Todos” y deja ambos años en el
+contexto. No hay selección por defecto: al abrir, el selector muestra “Todas” y
+los visuales agregan 2024 + 2025.
+
+El filtro de página común es:
+
+```text
+Tenders[Año de cohorte] IN {2024, 2025}
+```
+
+Ese filtro es el que impide que las filas 2013–2023 entren al reporte, incluso
+cuando el selector está en “Todas”.
+
+### Página 1 — Mercado
 
 - Seis tarjetas: Procesos, Monto convocado, Monto mediano, Oportunidades MYPE,
   % MYPE y Ticket promedio.
 - “Monto convocado por departamento”: top 10 por monto, en miles de millones
   de soles.
 - “Procesos y monto por categoría”: tabla con procesos, monto y % MYPE.
-- “Evolución mensual de los procesos”: línea por mes de publicación, separada
-  entre compatible MYPE y no compatible. Los procesos de la cohorte publicados
-  en diciembre 2024 se excluyen del gráfico; el subtítulo lo explica.
+- “Evolución mensual por cohorte”: línea por mes de publicación, con una serie
+  para 2024 y otra para 2025.
 - “Procesos por rango de monto”: distribución con tramo “Sin monto” para los
   montos 0.
 - “Participación MYPE por monto”: dona con etiquetas de categoría y porcentaje.
@@ -184,14 +206,14 @@ Filtro de página: `Tenders[Año de cohorte] = 2025`.
 
 ### Página 2 — Oportunidades
 
-Filtros de página: `Año de cohorte = 2025` y `Compatible MYPE = TRUE`.
+Filtros de página: `Año de cohorte IN {2024, 2025}` y `Compatible MYPE = TRUE`.
 
-- Selectores: Departamento, Categoría, Método y Rango de monto.
+- Selectores: Año de cohorte, Departamento, Categoría, Método y Rango de monto.
 - Tarjetas: oportunidades en vista, monto en vista y ticket promedio.
-- Tabla explorable: proceso, entidad, departamento, categoría, método, monto,
-  fecha de publicación y fin del período. Ordenada por fecha de publicación
-  descendente.
-- La tabla es una vista histórica de la cohorte, no una lista de oportunidades
+- Tabla explorable: proceso, entidad, departamento, categoría, año de cohorte,
+  método, monto, fecha de publicación y fin del período. Ordenada por fecha de
+  publicación descendente.
+- La tabla es una vista histórica de las cohortes, no una lista de oportunidades
   vigentes. La búsqueda por texto sigue en la web app.
 
 ## 5. Validación y verificación
@@ -216,26 +238,33 @@ Resultado del último run:
 ```
 
 El modelo se abrió y refrescó en Power BI Desktop desde los Parquet locales el
-**20/11/2026**. Se verificaron las medidas con DAX. En ese refresco, con la regla
-MYPE corregida (`amount_pen > 0`):
+**22/11/2026**. Se verificaron las medidas con DAX:
 
 | Comprobación | Valor observado |
 |---|---:|
-| Procesos cargados (todos los años) | 124,538 |
-| Procesos cohorte 2025 | 59,141 |
-| Oportunidades MYPE cohorte 2025 | 29,921 |
-| Monto cohorte 2025 | S/ 66,624,609,618.79 |
-| Monto mediano cohorte 2025 | S/ 145,694.87 |
-| % MYPE cohorte 2025 | 50.6% |
-| Ticket promedio cohorte 2025 | S/ 1,126,538.44 |
-| Procesos con adjudicación | 44,509 |
-| Contratos | 42,650 |
+| Procesos cargados (todos los años) | 232,989 |
+| Procesos cohorte 2024 | 64,783 |
+| Procesos cohorte 2025 | 59,148 |
+| Procesos cohorte total | 123,931 |
+| Oportunidades MYPE 2024 | 28,458 |
+| Oportunidades MYPE 2025 | 29,922 |
+| Oportunidades MYPE total | 58,380 |
+| % MYPE 2024 | 43.9% |
+| % MYPE 2025 | 50.6% |
+| % MYPE total | 47.1% |
+| Monto total cohorte | S/ 158,343,983,740.46 |
+| Monto mediano cohorte | S/ 145,600.00 |
+| Ticket promedio cohorte | S/ 1,277,678.58 |
+| Monto MYPE cohorte | S/ 5,773,289,671.05 |
+| % monto MYPE cohorte | 3.65% |
+| Procesos con monto 0 | 14,335 |
+| Procesos con adjudicación | 94,570 |
+| Contratos | 92,033 |
 
 Estas cifras **no están hardcodeadas en el PBIR ni en el modelo**: salen de las
-medidas y **se actualizan al refrescar**. El refresco se ejecutó el **20/11/2026**
-con los Parquet corregidos y la regla MYPE ajustada (`amount_pen > 0`). Las
-capturas se rehicieron después de ese refresco. Cualquier nuevo run del
-pipeline exige refrescar el modelo y volver a capturar las páginas.
+medidas y **se actualizan al refrescar**. El refresco del 22/11/2026 se hizo con
+los Parquet de ambos snapshots y la regla MYPE corregida (`amount_pen > 0`). Las
+capturas se rehicieron después de ese refresco.
 
 ## 6. Capturas
 
@@ -245,20 +274,24 @@ pipeline exige refrescar el modelo y volver a capturar las páginas.
 | Oportunidades | `dashboard/screenshots/oportunidades.png` |
 
 Se capturaron con `powerbi-report-author preview --host desktop` y se
-recortaron para excluir el panel de filtros de Desktop. Ambas son 1872×1052.
+recortaron para excluir el panel de filtros de Desktop. Ambas son 1872×1052 y
+muestran el selector en “Todas” (ambos años).
 
 ## 7. Refresco
 
 1. Regenerar los exports Parquet con el pipeline (fuera de este dashboard).
 2. Abrir `dashboard/ContrataMYPE.pbip` en Power BI Desktop.
-3. Verificar `DataFolder` si cambió la ruta del proyecto.
+3. Ajustar temporalmente `DataFolder` a la ruta local de `artifacts/2025`.
 4. **Inicio → Actualizar**. Power BI vuelve a leer los cinco Parquet y recalcula
    las columnas calculadas.
-5. Repetir `powerbi-report-author validate` si se tocó el PBIR.
-6. Si se editaron páginas o el modelo, recargar el reporte en Desktop antes de
+5. Verificar los totales con DAX o con las tarjetas de la página 1.
+6. Volver a dejar `DataFolder` en `C:\contratamype\artifacts\2025` y no
+   commitear la ruta local.
+7. Repetir `powerbi-report-author validate` si se tocó el PBIR.
+8. Si se editaron páginas o el modelo, recargar el reporte en Desktop antes de
    capturar. Las capturas deben rehacerse cuando cambien los datos.
 
-No se publica en Power BI Service en v1.0. El PBIP es local.
+No se publica en Power BI Service en v1.1. El PBIP es local.
 
 ### PBIX pendiente (manual)
 
@@ -286,25 +319,27 @@ El gate de release acepta el `.pbip` como artefacto de dashboard.
   el dashboard no filtra por moneda y suma el campo tal como lo exporta el
   pipeline. Para un análisis monetario estricto hay que filtrar `currency` o
   convertir con una tasa documentada.
-- **Montos 0.** 4,952 procesos de la cohorte tienen monto 0 (no informado). Se
-  incluyen en `Monto total`, `Monto mediano` y `Ticket promedio`; el tramo
-  “Sin monto” los hace visibles.
+- **Montos 0.** En el total 2024–2025 hay 14,335 procesos con monto 0 (9,383 en
+  2024 y 4,952 en 2025). Se incluyen en `Monto total`, `Monto mediano` y
+  `Ticket promedio`; el tramo “Sin monto” los hace visibles.
 - **Estado del proceso vacío.** `tenders.status` viene nulo en todos los
   registros de este snapshot; no se usa en el reporte.
 - **Fechas de plazo incompletas.** La mayoría de procesos tiene
   `tender_start = tender_end`; no se calcula duración ni se usa como alerta.
 - **Adjudicaciones y contratos no visualizados.** `Awards`, `Contracts` y
-  `Suppliers` están en el modelo con medidas de contexto, pero las páginas v1.0
-  se centran en la demanda (tenders). La cobertura de adjudicación es parcial:
-  1,741 awards no tienen proveedor y 5,128 contratos no enlazan a un award.
-- **Sin comparación anual.** v1.0 cubre solo 2025. La evolución mensual excluye
-  los procesos de la cohorte publicados en diciembre 2024 y no promete una serie
-  2018–2025.
-- **Sin búsqueda por texto.** El explorador filtra por departamento, categoría,
-  método y rango; la búsqueda libre y el detalle están en la web app.
-- **Capturas y cifras.** Las capturas se rehicieron el 20/11/2026 después del
-  refresco con la regla MYPE corregida. Cualquier nuevo run del pipeline exige
-  refrescar y recapturar; las cifras no están hardcodeadas en el reporte.
+  `Suppliers` están en el modelo con medidas de contexto, pero las páginas v1.1
+  se centran en la demanda (tenders). La cobertura es parcial: 3,866 awards no
+  tienen proveedor y 11,274 contratos no enlazan a un award.
+- **Ventana 2024–2025.** Las filas 2013–2023 existen en el modelo pero quedan
+  fuera del reporte por el filtro de cohorte. No se promete una serie histórica
+  2013–2025 ni una comparación con años anteriores.
+- **Sin búsqueda por texto.** El explorador filtra por cohorte, departamento,
+  categoría, método y rango; la búsqueda libre y el detalle están en la web app.
+- **Etiqueta “Todas”.** Power BI Desktop en español rotula la opción de todos
+  los valores como “Todas”; en este reporte significa “Todos” (2024 + 2025).
+- **Capturas y cifras.** Las capturas se rehicieron el 22/11/2026 después del
+  refresco. Cualquier nuevo run del pipeline exige refrescar y recapturar; las
+  cifras no están hardcodeadas en el reporte.
 
 ## 9. Atribución
 

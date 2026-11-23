@@ -8,7 +8,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "Filterafd7b9277e85653c99c887d1",
+        "name": "Filter3f34c9ea7bc4020b7c8f6292",
         "field": {
           "Column": {
             "Expression": {
@@ -46,6 +46,13 @@
                     }
                   ],
                   "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "2024L"
+                        }
+                      }
+                    ],
                     [
                       {
                         "Literal": {

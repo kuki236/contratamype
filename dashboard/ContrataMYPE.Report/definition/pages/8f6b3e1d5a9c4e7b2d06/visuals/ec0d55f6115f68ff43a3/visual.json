@@ -3,7 +3,7 @@
   "name": "ec0d55f6115f68ff43a3",
   "position": {
     "x": 32,
-    "y": 552,
+    "y": 648,
     "z": 1000,
     "height": 200,
     "width": 312,
@@ -45,7 +45,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Cohorte histórica 2025. No es una lista de oportunidades vigentes ni un dictamen de elegibilidad.",
+                    "value": "Cohortes históricas 2024–2025. No es una lista de oportunidades vigentes ni un dictamen de elegibilidad.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "10px",

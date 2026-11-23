@@ -6,7 +6,7 @@
     "y": 24,
     "z": 1000,
     "height": 64,
-    "width": 1160,
+    "width": 900,
     "tabOrder": 1000
   },
   "visual": {
@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "El mercado de compras públicas 2025",
+                    "value": "El mercado de compras públicas 2024–2025",
                     "textStyle": {
                       "fontFamily": "Segoe UI Semibold",
                       "fontSize": "32px",

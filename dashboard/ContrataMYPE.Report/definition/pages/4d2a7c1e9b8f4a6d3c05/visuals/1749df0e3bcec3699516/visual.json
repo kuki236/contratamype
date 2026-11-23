@@ -41,11 +41,11 @@
                       "Entity": "Tenders"
                     }
                   },
-                  "Property": "Compatibilidad MYPE"
+                  "Property": "Año de cohorte"
                 }
               },
-              "queryRef": "Tenders.Compatibilidad MYPE",
-              "nativeQueryRef": "Compatibilidad MYPE"
+              "queryRef": "Tenders.Año de cohorte",
+              "nativeQueryRef": "Año de cohorte"
             }
           ]
         },
@@ -398,7 +398,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Evolución mensual de los procesos'"
+                  "Value": "'Evolución mensual por cohorte'"
                 }
               }
             },
@@ -450,7 +450,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Cohorte 2025 por mes de publicación; los procesos publicados en dic-2024 no se muestran'"
+                  "Value": "'Procesos por mes de publicación; cohortes 2024–2025'"
                 }
               }
             },
@@ -488,7 +488,7 @@
             "altText": {
               "expr": {
                 "Literal": {
-                  "Value": "'Línea mensual de procesos publicados en 2025, separada entre compatibles MYPE y no compatibles.'"
+                  "Value": "'Línea mensual de procesos publicados, comparando las cohortes 2024 y 2025.'"
                 }
               }
             }
@@ -496,63 +496,5 @@
         }
       ]
     }
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "Filter3071b54735c038319af2e863",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "Tenders"
-              }
-            },
-            "Property": "Año de publicación"
-          }
-        },
-        "type": "Categorical",
-        "filter": {
-          "Version": 2,
-          "From": [
-            {
-              "Name": "c",
-              "Entity": "Tenders",
-              "Type": 0
-            }
-          ],
-          "Where": [
-            {
-              "Condition": {
-                "In": {
-                  "Expressions": [
-                    {
-                      "Column": {
-                        "Expression": {
-                          "SourceRef": {
-                            "Source": "c"
-                          }
-                        },
-                        "Property": "Año de publicación"
-                      }
-                    }
-                  ],
-                  "Values": [
-                    [
-                      {
-                        "Literal": {
-                          "Value": "2025L"
-                        }
-                      }
-                    ]
-                  ]
-                }
-              }
-            }
-          ]
-        },
-        "howCreated": "User"
-      }
-    ]
   }
 }

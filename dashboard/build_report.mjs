@@ -615,9 +615,9 @@ function lineChart({
           Series: {
             projections: [
               projection(
-                column("Tenders", "Compatibilidad MYPE"),
-                "Tenders.Compatibilidad MYPE",
-                "Compatibilidad MYPE",
+                column("Tenders", "Año de cohorte"),
+                "Tenders.Año de cohorte",
+                "Año de cohorte",
               ),
             ],
           },
@@ -685,18 +685,6 @@ function lineChart({
         general: altText(alt),
       },
     },
-  };
-
-  visual.filterConfig = {
-    filters: [
-      categoricalFilter({
-        key,
-        entity: "Tenders",
-        property: "Año de publicación",
-        values: [2025],
-        scope: "visual",
-      }),
-    ],
   };
 
   return visual;
@@ -961,7 +949,7 @@ writePage(P1, "Mercado", [
     key: "page1-cohort",
     entity: "Tenders",
     property: "Año de cohorte",
-    values: [2025],
+    values: [2024, 2025],
   }),
 ]);
 
@@ -972,32 +960,45 @@ p1Visuals.push(
     key: "p1-title",
     x: 32,
     y: 24,
-    width: 1160,
+    width: 900,
     height: 64,
-    paragraphs: [paragraph("El mercado de compras públicas 2025", 32, C.navy, { family: "Segoe UI Semibold", bold: true })],
+    paragraphs: [paragraph("El mercado de compras públicas 2024–2025", 32, C.navy, { family: "Segoe UI Semibold", bold: true })],
   }),
 );
 
 p1Visuals.push(
   textbox({
     key: "p1-source",
-    x: 1208,
+    x: 948,
     y: 24,
-    width: 416,
+    width: 400,
     height: 64,
     paragraphs: [
       paragraph("Fuente: OECE — Contrataciones Abiertas (OCDS) · CC BY 4.0", 10, C.inkSecondary, { align: "right" }),
-      paragraph("Cohorte dataSegmentation 2025 · montos en S/", 10, C.inkSecondary, { align: "right" }),
+      paragraph("Cohortes 2024–2025 · montos en S/", 10, C.inkSecondary, { align: "right" }),
     ],
+  }),
+);
+
+p1Visuals.push(
+  slicerVisual({
+    key: "p1-year",
+    x: 1364,
+    y: 24,
+    width: 176,
+    height: 80,
+    property: "Año de cohorte",
+    header: "Año de cohorte",
+    alt: "Selector para filtrar ambas páginas por cohorte: todos, 2024 o 2025.",
   }),
 );
 
 p1Visuals.push(
   navButton({
     key: "p1-nav",
-    x: 1640,
+    x: 1556,
     y: 32,
-    width: 248,
+    width: 332,
     height: 48,
     label: "Explorar oportunidades",
     targetPageId: P2,
@@ -1009,7 +1010,7 @@ p1Visuals.push(
 );
 
 const kpis = [
-  { key: "procesos", measure: "Procesos", label: "Procesos en la cohorte", color: C.navy, accent: C.blue, displayUnits: "1", precision: 0, alt: "Tarjeta con la cantidad de procesos de la cohorte 2025." },
+  { key: "procesos", measure: "Procesos", label: "Procesos en la cohorte", color: C.navy, accent: C.blue, displayUnits: "1", precision: 0, alt: "Tarjeta con la cantidad de procesos de las cohortes 2024–2025." },
   { key: "monto", measure: "Monto total", label: "Monto convocado", color: C.navy, accent: C.blue, displayUnits: "1000000", precision: 0, alt: "Tarjeta con el monto total convocado, en millones de soles." },
   { key: "mediano", measure: "Monto mediano", label: "Monto mediano", color: C.navy, accent: C.blue, displayUnits: "1000", precision: 1, alt: "Tarjeta con la mediana del monto referencial, en miles de soles." },
   { key: "mype", measure: "Oportunidades MYPE", label: "Oportunidades MYPE", color: C.teal, accent: C.teal, displayUnits: "1", precision: 0, alt: "Tarjeta con la cantidad de procesos compatibles con la heurística MYPE." },
@@ -1101,9 +1102,9 @@ p1Visuals.push(
     y: 600,
     width: 752,
     height: 400,
-    title: "Evolución mensual de los procesos",
-    subtitle: "Cohorte 2025 por mes de publicación; los procesos publicados en dic-2024 no se muestran",
-    alt: "Línea mensual de procesos publicados en 2025, separada entre compatibles MYPE y no compatibles.",
+    title: "Evolución mensual por cohorte",
+    subtitle: "Procesos por mes de publicación; cohortes 2024–2025",
+    alt: "Línea mensual de procesos publicados, comparando las cohortes 2024 y 2025.",
   }),
 );
 
@@ -1171,10 +1172,10 @@ p1Visuals.forEach((visual) => writeVisual(P1, visual));
 
 writePage(P2, "Oportunidades", [
   categoricalFilter({
-    key: "page2-cohort",
+    key: "p2-cohort",
     entity: "Tenders",
     property: "Año de cohorte",
-    values: [2025],
+    values: [2024, 2025],
   }),
   categoricalFilter({
     key: "page2-mype",
@@ -1205,7 +1206,7 @@ p2Visuals.push(
     width: 520,
     height: 64,
     paragraphs: [
-      paragraph("Cohorte 2025 · mype_fit = true", 10, C.inkSecondary, { align: "right" }),
+      paragraph("Cohortes 2024–2025 · mype_fit = true", 10, C.inkSecondary, { align: "right" }),
       paragraph("Vista histórica; para oportunidades vigentes usa la web app", 10, C.inkSecondary, { align: "right" }),
     ],
   }),
@@ -1264,10 +1265,11 @@ p2Visuals.push(
 );
 
 const slicers = [
-  { key: "department", property: "Departamento", header: "Departamento", y: 160, alt: "Selector para filtrar por departamento." },
-  { key: "category", property: "Categoría", header: "Categoría", y: 256, alt: "Selector para filtrar por categoría." },
-  { key: "method", property: "Método", header: "Método", y: 352, alt: "Selector para filtrar por método de contratación." },
-  { key: "band", property: "Rango de monto", header: "Rango de monto (S/)", y: 448, alt: "Selector para filtrar por rango de monto." },
+  { key: "year", property: "Año de cohorte", header: "Año de cohorte", y: 160, alt: "Selector para filtrar por cohorte: todos, 2024 o 2025." },
+  { key: "department", property: "Departamento", header: "Departamento", y: 256, alt: "Selector para filtrar por departamento." },
+  { key: "category", property: "Categoría", header: "Categoría", y: 352, alt: "Selector para filtrar por categoría." },
+  { key: "method", property: "Método", header: "Método", y: 448, alt: "Selector para filtrar por método de contratación." },
+  { key: "band", property: "Rango de monto", header: "Rango de monto (S/)", y: 544, alt: "Selector para filtrar por rango de monto." },
 ];
 
 slicers.forEach((slicer) => {
@@ -1289,13 +1291,13 @@ p2Visuals.push(
   textbox({
     key: "p2-filter-note",
     x: 32,
-    y: 552,
+    y: 648,
     width: 312,
     height: 200,
     paragraphs: [
       paragraph("Los filtros se combinan entre sí y actualizan los indicadores y la tabla.", 10, C.inkSecondary),
       paragraph("", 6, C.inkSecondary),
-      paragraph("Cohorte histórica 2025. No es una lista de oportunidades vigentes ni un dictamen de elegibilidad.", 10, C.amber, { bold: true }),
+      paragraph("Cohortes históricas 2024–2025. No es una lista de oportunidades vigentes ni un dictamen de elegibilidad.", 10, C.amber, { bold: true }),
     ],
   }),
 );
@@ -1308,24 +1310,26 @@ p2Visuals.push(
     width: 1520,
     height: 784,
     title: "Explorador de oportunidades",
-    subtitle: "Ordenado por fecha de publicación (más reciente primero); monto 0 = no informado",
+    subtitle: "Cohortes 2024–2025; ordenado por fecha de publicación (más reciente primero); monto 0 = no informado",
     values: [
       { field: column("Tenders", "Proceso"), queryRef: "Tenders.Proceso", native: "Proceso" },
       { field: column("Buyers", "Entidad"), queryRef: "Buyers.Entidad", native: "Entidad" },
       { field: column("Tenders", "Departamento"), queryRef: "Tenders.Departamento", native: "Departamento" },
       { field: column("Tenders", "Categoría"), queryRef: "Tenders.Categoría", native: "Categoría" },
+      { field: column("Tenders", "Año de cohorte"), queryRef: "Tenders.Año de cohorte", native: "Año de cohorte" },
       { field: column("Tenders", "Método"), queryRef: "Tenders.Método", native: "Método" },
       { field: column("Tenders", "Monto (S/)"), queryRef: "Tenders.Monto (S/)", native: "Monto (S/)" },
       { field: column("Tenders", "Fecha de publicación"), queryRef: "Tenders.Fecha de publicación", native: "Fecha de publicación" },
       { field: column("Tenders", "Fin del período"), queryRef: "Tenders.Fin del período", native: "Fin del período" },
     ],
     widths: [
-      { queryRef: "Tenders.Proceso", width: 380 },
-      { queryRef: "Buyers.Entidad", width: 310 },
-      { queryRef: "Tenders.Departamento", width: 120 },
-      { queryRef: "Tenders.Categoría", width: 96 },
-      { queryRef: "Tenders.Método", width: 200 },
-      { queryRef: "Tenders.Monto (S/)", width: 120 },
+      { queryRef: "Tenders.Proceso", width: 340 },
+      { queryRef: "Buyers.Entidad", width: 270 },
+      { queryRef: "Tenders.Departamento", width: 110 },
+      { queryRef: "Tenders.Categoría", width: 90 },
+      { queryRef: "Tenders.Año de cohorte", width: 80 },
+      { queryRef: "Tenders.Método", width: 170 },
+      { queryRef: "Tenders.Monto (S/)", width: 110 },
       { queryRef: "Tenders.Fecha de publicación", width: 100 },
       { queryRef: "Tenders.Fin del período", width: 100 },
     ],
@@ -1335,7 +1339,10 @@ p2Visuals.push(
     fontSize: 9,
     titleSize: 13,
     outerPadding: 12,
-    columnAlignments: [{ queryRef: "Tenders.Monto (S/)", alignment: "Right" }],
+    columnAlignments: [
+      { queryRef: "Tenders.Año de cohorte", alignment: "Right" },
+      { queryRef: "Tenders.Monto (S/)", alignment: "Right" },
+    ],
   }),
 );
 

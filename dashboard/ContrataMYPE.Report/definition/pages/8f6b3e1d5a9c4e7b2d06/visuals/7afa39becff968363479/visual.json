@@ -79,6 +79,20 @@
                       "Entity": "Tenders"
                     }
                   },
+                  "Property": "Año de cohorte"
+                }
+              },
+              "queryRef": "Tenders.Año de cohorte",
+              "nativeQueryRef": "Año de cohorte"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tenders"
+                    }
+                  },
                   "Property": "Método"
                 }
               },
@@ -348,7 +362,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "380D"
+                  "Value": "340D"
                 }
               }
             }
@@ -362,7 +376,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "310D"
+                  "Value": "270D"
                 }
               }
             }
@@ -376,7 +390,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "120D"
+                  "Value": "110D"
                 }
               }
             }
@@ -390,7 +404,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "96D"
+                  "Value": "90D"
                 }
               }
             }
@@ -404,7 +418,21 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "200D"
+                  "Value": "80D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Tenders.Año de cohorte"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "170D"
                 }
               }
             }
@@ -418,7 +446,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "120D"
+                  "Value": "110D"
                 }
               }
             }
@@ -457,6 +485,34 @@
         }
       ],
       "columnFormatting": [
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Right'"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleValues": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Tenders.Año de cohorte"
+          }
+        },
         {
           "properties": {
             "alignment": {
@@ -669,7 +725,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Ordenado por fecha de publicación (más reciente primero); monto 0 = no informado'"
+                  "Value": "'Cohortes 2024–2025; ordenado por fecha de publicación (más reciente primero); monto 0 = no informado'"
                 }
               }
             },
