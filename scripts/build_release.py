@@ -44,6 +44,7 @@ DOC_FILES = (
     "docs/llm-policy.md",
     "docs/llm-eval-sample-2025.json",
     "docs/llm-evaluation-v1.0.0.md",
+    "docs/v1.1-plan.md",
     "docs/release.md",
     "docs/user-test-v1.0.0.md",
     "docs/web.md",
