@@ -58,14 +58,20 @@ El TMDL versionado usa el parámetro de Power Query `DataFolder` con una ruta
 sanitizada:
 
 ```text
-C:\contratamype\artifacts\2025
+C:\Users\Public\contratamype\artifacts\2025
 ```
 
 Está en
-`dashboard/ContrataMYPE.SemanticModel/definition/expressions.tmdl`. Para
-refrescar en una máquina local hay que apuntarlo temporalmente a la carpeta real
-de `artifacts/2025`, refrescar y volver a dejarlo en la ruta sanitizada. La ruta
-local del usuario no se commitea.
+`dashboard/ContrataMYPE.SemanticModel/definition/expressions.tmdl`. En esta
+máquina, `C:\Users\Public\contratamype` es un **junction** al repositorio, así
+el PBIP abre y refresca sin exponer la ruta del usuario. En otro clon hay que
+crear el junction o editar `DataFolder`:
+
+```powershell
+New-Item -ItemType Junction `
+  -Path "C:\Users\Public\contratamype" `
+  -Target "C:\ruta\a\contratamype"
+```
 
 ## 3. Modelo
 
@@ -285,7 +291,7 @@ muestran el selector en “Todas” (ambos años).
 4. **Inicio → Actualizar**. Power BI vuelve a leer los cinco Parquet y recalcula
    las columnas calculadas.
 5. Verificar los totales con DAX o con las tarjetas de la página 1.
-6. Volver a dejar `DataFolder` en `C:\contratamype\artifacts\2025` y no
+6. Volver a dejar `DataFolder` en `C:\Users\Public\contratamype\artifacts\2025` y no
    commitear la ruta local.
 7. Repetir `powerbi-report-author validate` si se tocó el PBIR.
 8. Si se editaron páginas o el modelo, recargar el reporte en Desktop antes de
