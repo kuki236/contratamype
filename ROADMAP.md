@@ -131,3 +131,19 @@
 - [ ] Test con una persona MYPE y feedback registrado. **(pendiente manual, no bloquea el bundle técnico)**
 
 **Criterio:** se puede clonar, correr y entender el producto sin acceso al chat.
+
+## Fase 8 — v1.1 cohortes 2024–2025
+
+- [x] Bulk 2024 descargado y auditado: 46,328 cohorte; SHA `9f50c844…`.
+- [ ] Pipeline multi-input con cohortes 2024/2025, `snapshot_year` y MYPE por año.
+- [ ] Web/API con filtro Año (Todos/2025/2024) y default todos.
+- [ ] Dashboard con selector de año, refresh y capturas.
+- [ ] Adaptador Gemini opcional usando `.env`.
+- [ ] Release `v1.1.0` con bundle, checksums y tag.
+
+**Datos:** cohortes disjuntas; 46,328 + 59,141 = **105,469 OCIDs únicos**. Detalle en `docs/v1.1-plan.md`.
+
+**E2E del checkpoint:**
+- Pipeline fast/slow con ambos bulk y MYPE exacto por año; Playwright con seed 2024/2025; PBIP 0/0 y capturas.
+
+**Criterio:** la web y el dashboard permiten comparar 2024 y 2025 sin duplicar la regla MYPE ni romper v1.0.0.
