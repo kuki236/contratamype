@@ -9,7 +9,7 @@ dos snapshots. Las cifras salen de `data/processed/contratamype.duckdb` y del
 - **123,931 procesos** por **S/ 158,343,983,740.46**.
 - **58,380 procesos (47.1%)** cumplen la heurística MYPE.
 - Esos procesos suman **S/ 5,773,289,671.05**, solo **3.6% del monto total**.
-- Mediana del proceso: **S/ 145,600.00**.
+- Mediana de montos positivos: **S/ 178,000.00** (S/ 145,600.00 si se incluyen los 14,335 ceros “no informados”).
 
 ## 2. Por año
 
