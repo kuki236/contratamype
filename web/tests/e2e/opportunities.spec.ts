@@ -7,8 +7,8 @@ test.describe("búsqueda de oportunidades", () => {
     await expect(
       page.getByRole("heading", { name: "Encuentra oportunidades para tu MYPE" }),
     ).toBeVisible();
-    await expect(page.getByTestId("opportunity-card")).toHaveCount(7);
-    await expect(page.getByText("Compra histórica fuera de la cohorte")).toHaveCount(0);
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(8);
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
 
     const laptopCard = page
       .getByTestId("opportunity-card")
@@ -20,7 +20,38 @@ test.describe("búsqueda de oportunidades", () => {
 
     await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
     await expect(page.getByText("Compra de laptops para capacitación")).toBeVisible();
-    await expect(page.getByText("Compra histórica fuera de la cohorte")).toHaveCount(0);
+    await expect(page.getByText("Compra histórica de 2024")).toHaveCount(0);
+  });
+
+  test("filtra por año y conserva Todos por defecto", async ({ page }) => {
+    await page.goto("/");
+
+    const yearSelect = page.getByLabel("Año");
+    await expect(yearSelect).toHaveValue("");
+    await expect(yearSelect.locator("option")).toHaveText(["Todos", "2025", "2024"]);
+    await expect(page.getByText("Procesos 2024–2025", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "8 oportunidades" })).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+
+    await yearSelect.selectOption("2024");
+    await page.getByRole("button", { name: "Buscar oportunidades" }).click();
+
+    await expect(page).toHaveURL(/year=2024/);
+    await expect(page.getByRole("heading", { level: 2, name: "1 oportunidad" })).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Procesos 2024", { exact: true })).toBeVisible();
+
+    await page.goto("/?year=2025&mype_only=0");
+    await expect(page.getByRole("heading", { level: 2, name: "36 oportunidades" })).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2024")).toHaveCount(0);
+
+    await page.goto("/?year=2024&mype_only=0");
+    await expect(page.getByRole("heading", { level: 2, name: "1 oportunidad" })).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+
+    await page.goto("/?mype_only=0&page=2");
+    await expect(page.getByRole("heading", { level: 2, name: "37 oportunidades" })).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
   });
 
   test("filtra por departamento, categoría y monto", async ({ page }) => {
@@ -36,9 +67,14 @@ test.describe("búsqueda de oportunidades", () => {
     await expect(page.getByText("Compra de laptops para capacitación")).toHaveCount(0);
 
     await page.goto("/?category=goods&mype_only=0");
-    await expect(page.getByTestId("opportunity-card")).toHaveCount(4);
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(5);
     await expect(page.getByText("Suministro de alimentos no perecibles")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
     await expect(page.getByText("Servicio de limpieza de oficinas")).toHaveCount(0);
+
+    await page.goto("/?year=2025&category=goods&mype_only=0");
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(4);
+    await expect(page.getByText("Compra histórica de 2024")).toHaveCount(0);
 
     await page.goto("/?min_amount=90000&max_amount=100000&mype_only=0");
     await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
@@ -137,5 +173,21 @@ test.describe("checklist y PDF", () => {
     const body = await response.body();
     expect(body.subarray(0, 4).toString()).toBe("%PDF");
     expect(body.length).toBeGreaterThan(1000);
+  });
+
+  test("sirve detalle, checklist y PDF de la cohorte 2024", async ({ page, request }) => {
+    await page.goto("/opportunities/ocds-test-0010");
+
+    await expect(page.getByRole("heading", { name: "Compra histórica de 2024" })).toBeVisible();
+    await expect(page.getByText("Cohorte 2024", { exact: true })).toBeVisible();
+
+    await page.goto("/opportunities/ocds-test-0010/checklist");
+    await expect(page.getByRole("heading", { name: "Checklist de participación" })).toBeVisible();
+    await expect(page.getByText("ocds-test-0010").first()).toBeVisible();
+
+    const response = await request.get("/opportunities/ocds-test-0010/checklist/pdf");
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("application/pdf");
+    expect((await response.body()).subarray(0, 4).toString()).toBe("%PDF");
   });
 });

@@ -350,8 +350,10 @@ TENDERS = [
     },
     {
         "ocid": "ocds-test-0010",
-        "title": "Compra histórica fuera de la cohorte",
-        "description": "Registro de 2024 que no debe aparecer en la búsqueda por defecto.",
+        "title": "Compra histórica de 2024",
+        "description": (
+            "Registro de 2024 que solo aparece al consultar el año 2024 o todos los años."
+        ),
         "category": "goods",
         "method": "Adjudicación Simplificada",
         "amount_pen": _money(10000),

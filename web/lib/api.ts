@@ -52,7 +52,7 @@ function buildQueryString(query: OpportunityQuery): string {
   if (query.min_amount !== undefined) params.set("min_amount", String(query.min_amount));
   if (query.max_amount !== undefined) params.set("max_amount", String(query.max_amount));
   if (query.status) params.set("status", query.status);
-  params.set("year", String(query.year));
+  if (query.year !== undefined) params.set("year", String(query.year));
   params.set("mype_only", String(query.mype_only));
   params.set("page", String(query.page));
   params.set("page_size", String(query.page_size));
@@ -63,12 +63,12 @@ export function searchOpportunities(query: OpportunityQuery): Promise<Opportunit
   return getJson<OpportunityPage>(`/opportunities?${buildQueryString(query)}`);
 }
 
-export function getMeta(year: number): Promise<Meta> {
-  return getJson<Meta>(`/meta?year=${year}`);
+export function getMeta(year?: number): Promise<Meta> {
+  return getJson<Meta>(year === undefined ? "/meta" : `/meta?year=${year}`);
 }
 
-export function getStats(year: number): Promise<Stats> {
-  return getJson<Stats>(`/stats?year=${year}`);
+export function getStats(year?: number): Promise<Stats> {
+  return getJson<Stats>(year === undefined ? "/stats" : `/stats?year=${year}`);
 }
 
 export function getOpportunity(ocid: string): Promise<OpportunityDetail> {

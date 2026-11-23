@@ -64,3 +64,11 @@ export function formatDateRange(
   if (!end) return `Inicio: ${formatDateShort(start)}`;
   return `${formatDateShort(start)} – ${formatDateShort(end)}`;
 }
+
+export function cohortLabel(years: number[]): string {
+  const sorted = Array.from(new Set(years)).sort((a, b) => a - b);
+  if (sorted.length === 0) return "sin cohortes";
+  if (sorted.length === 1) return String(sorted[0]);
+  const contiguous = sorted.every((year, index) => index === 0 || year === sorted[index - 1] + 1);
+  return contiguous ? `${sorted[0]}–${sorted[sorted.length - 1]}` : sorted.join(", ");
+}

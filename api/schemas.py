@@ -94,7 +94,7 @@ class OpportunityPage(BaseModel):
 
 
 class Meta(BaseModel):
-    cohort_year: int
+    years: list[int]
     departments: list[str]
     categories: list[str]
     methods: list[str]
@@ -129,7 +129,7 @@ class AmountStats(BaseModel):
 
 
 class Stats(BaseModel):
-    year: int
+    year: int | None
     total: int
     mype_opportunities: int
     missing_description: int

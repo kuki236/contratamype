@@ -1,6 +1,5 @@
 import type { OpportunityPage } from "./types";
 
-export const COHORT_YEAR = 2025;
 export const PAGE_SIZE = 20;
 export const MAX_QUERY_LENGTH = 200;
 export const MAX_PAGE = 100000;
@@ -13,6 +12,7 @@ export interface SearchFilters {
   min_amount: string;
   max_amount: string;
   status: string;
+  year: string;
   mype_only: boolean;
   page: number;
 }
@@ -30,6 +30,11 @@ function optionalNumber(value: string): number | undefined {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
 }
 
+function parseYear(value: string): string {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 2000 && parsed <= 2100 ? String(parsed) : "";
+}
+
 export function parseFilters(raw: RawSearchParams): SearchFilters {
   const pageValue = Number.parseInt(first(raw.page), 10);
   return {
@@ -40,6 +45,7 @@ export function parseFilters(raw: RawSearchParams): SearchFilters {
     min_amount: first(raw.min_amount),
     max_amount: first(raw.max_amount),
     status: first(raw.status),
+    year: parseYear(first(raw.year)),
     mype_only: first(raw.mype_only) !== "0",
     page: Number.isFinite(pageValue) && pageValue > 0 ? Math.min(pageValue, MAX_PAGE) : 1,
   };
@@ -53,7 +59,7 @@ export interface OpportunityQuery {
   min_amount?: number;
   max_amount?: number;
   status?: string;
-  year: number;
+  year?: number;
   mype_only: boolean;
   page: number;
   page_size: number;
@@ -68,7 +74,7 @@ export function toOpportunityQuery(filters: SearchFilters): OpportunityQuery {
     min_amount: optionalNumber(filters.min_amount),
     max_amount: optionalNumber(filters.max_amount),
     status: filters.status || undefined,
-    year: COHORT_YEAR,
+    year: filters.year ? Number(filters.year) : undefined,
     mype_only: filters.mype_only,
     page: filters.page,
     page_size: PAGE_SIZE,
@@ -90,6 +96,7 @@ export function toSearchParams(
   if (minAmount !== undefined) params.set("min_amount", String(minAmount));
   if (maxAmount !== undefined) params.set("max_amount", String(maxAmount));
   if (merged.status) params.set("status", merged.status);
+  if (merged.year) params.set("year", merged.year);
   params.set("mype_only", merged.mype_only ? "1" : "0");
   if (merged.page > 1) params.set("page", String(Math.min(merged.page, MAX_PAGE)));
   return params;
@@ -104,6 +111,7 @@ export function hasActiveFilters(filters: SearchFilters): boolean {
     filters.min_amount ||
     filters.max_amount ||
     filters.status ||
+    filters.year ||
     !filters.mype_only,
   );
 }

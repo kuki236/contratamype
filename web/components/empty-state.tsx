@@ -39,7 +39,7 @@ export function EmptyState({
         {offerAll
           ? "Tu búsqueda no coincide con las oportunidades marcadas como compatibles MYPE, pero sí hay resultados en toda la cohorte."
           : active
-            ? "Prueba con menos filtros, otro departamento o un monto más amplio. La cohorte 2025 solo incluye los procesos publicados en la fuente."
+            ? "Prueba con menos filtros, otro departamento o un monto más amplio. La cohorte consultada solo incluye los procesos publicados en la fuente."
             : "La cohorte consultada no tiene procesos cargados. Revisa que el pipeline haya generado la base de datos."}
       </p>
       <div className="mt-5 flex flex-wrap justify-center gap-3">

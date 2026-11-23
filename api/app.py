@@ -9,7 +9,6 @@ import duckdb
 from fastapi import FastAPI, HTTPException, Query
 
 from api.checklist import build_checklist
-from api.config import DEFAULT_YEAR
 from api.db import Connection, fetch_all, fetch_one, money
 from api.schemas import (
     AmountStats,
@@ -32,10 +31,11 @@ from api.schemas import (
 
 app = FastAPI(
     title="ContrataMYPE API",
-    version="1.0.0",
+    version="1.1.0",
     description=(
         "API de solo lectura sobre DuckDB. La etiqueta mype_fit se lee de la base; "
-        "la API no recalcula la regla MYPE."
+        "la API no recalcula la regla MYPE. Sin parámetro year, los endpoints "
+        "agregan todas las cohortes disponibles."
     ),
 )
 
@@ -79,16 +79,24 @@ def _like_pattern(text: str) -> str:
     return f"%{escaped}%"
 
 
-def _distinct(connection: duckdb.DuckDBPyConnection, column: str, year: int) -> list[str]:
+def _year_filter(year: int | None) -> tuple[str, list[Any]]:
+    """SQL predicate for an optional cohort filter; ``None`` means every cohort."""
+    if year is None:
+        return "TRUE", []
+    return "segmentation_year = ?", [year]
+
+
+def _distinct(connection: duckdb.DuckDBPyConnection, column: str, year: int | None) -> list[str]:
+    condition, parameters = _year_filter(year)
     rows = fetch_all(
         connection,
         f"""
         SELECT DISTINCT {column} AS value
         FROM tenders
-        WHERE segmentation_year = ? AND {column} IS NOT NULL AND trim({column}) <> ''
+        WHERE {condition} AND {column} IS NOT NULL AND trim({column}) <> ''
         ORDER BY 1
         """,
-        [year],
+        parameters,
     )
     return [row["value"] for row in rows]
 
@@ -216,32 +224,42 @@ def health(connection: Connection) -> Health:
 @app.get("/meta", response_model=Meta)
 def meta(
     connection: Connection,
-    year: Annotated[int, Query(ge=2000, le=2100)] = DEFAULT_YEAR,
+    year: Annotated[int | None, Query(ge=2000, le=2100)] = None,
 ) -> Meta:
+    condition, parameters = _year_filter(year)
     categories = fetch_all(
         connection,
-        """
+        f"""
         SELECT DISTINCT category AS value
         FROM tenders
-        WHERE segmentation_year = ? AND category IS NOT NULL AND trim(category) <> ''
+        WHERE {condition} AND category IS NOT NULL AND trim(category) <> ''
         ORDER BY CASE category
             WHEN 'goods' THEN 1 WHEN 'services' THEN 2 WHEN 'works' THEN 3 ELSE 4
         END, category
         """,
-        [year],
+        parameters,
     )
     amounts = fetch_one(
         connection,
-        """
+        f"""
         SELECT MIN(CASE WHEN amount_pen > 0 THEN amount_pen END) AS min_amount,
                MAX(CASE WHEN amount_pen > 0 THEN amount_pen END) AS max_amount
         FROM tenders
-        WHERE segmentation_year = ?
+        WHERE {condition}
         """,
-        [year],
+        parameters,
+    )
+    year_rows = fetch_all(
+        connection,
+        """
+        SELECT DISTINCT segmentation_year AS value
+        FROM tenders
+        WHERE segmentation_year IS NOT NULL
+        ORDER BY 1
+        """,
     )
     return Meta(
-        cohort_year=year,
+        years=[int(row["value"]) for row in year_rows],
         departments=_distinct(connection, "department", year),
         categories=[row["value"] for row in categories],
         methods=_distinct(connection, "method", year),
@@ -262,13 +280,14 @@ def opportunities(
     min_amount: Annotated[float | None, Query(ge=0)] = None,
     max_amount: Annotated[float | None, Query(ge=0)] = None,
     status: str | None = None,
-    year: Annotated[int, Query(ge=2000, le=2100)] = DEFAULT_YEAR,
+    year: Annotated[int | None, Query(ge=2000, le=2100)] = None,
     mype_only: bool = False,
     page: Annotated[int, Query(ge=1, le=100000)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> OpportunityPage:
-    where = ["t.segmentation_year = ?"]
-    parameters: list[Any] = [year]
+    condition, year_parameters = _year_filter(year)
+    where = [condition]
+    parameters: list[Any] = [*year_parameters]
 
     if q and q.strip():
         pattern = _like_pattern(q.strip())
@@ -336,11 +355,12 @@ def opportunity_detail(connection: Connection, ocid: str) -> OpportunityDetail:
 @app.get("/stats", response_model=Stats)
 def stats(
     connection: Connection,
-    year: Annotated[int, Query(ge=2000, le=2100)] = DEFAULT_YEAR,
+    year: Annotated[int | None, Query(ge=2000, le=2100)] = None,
 ) -> Stats:
+    condition, year_parameters = _year_filter(year)
     totals = fetch_one(
         connection,
-        """
+        f"""
         SELECT COUNT(*) AS total,
                COALESCE(SUM(CASE WHEN mype_fit THEN 1 ELSE 0 END), 0) AS mype,
                COALESCE(SUM(CASE WHEN amount_pen = 0 THEN 1 ELSE 0 END), 0) AS zero_amount,
@@ -352,9 +372,9 @@ def stats(
                MAX(CASE WHEN amount_pen > 0 THEN amount_pen END) AS amount_max,
                MEDIAN(CASE WHEN amount_pen > 0 THEN amount_pen END) AS amount_median
         FROM tenders
-        WHERE segmentation_year = ?
+        WHERE {condition}
         """,
-        [year],
+        year_parameters,
     )
     if totals is None:
         raise HTTPException(status_code=500, detail="No se pudieron calcular las estadísticas.")
@@ -363,13 +383,25 @@ def stats(
         SELECT {column} AS value, COUNT(*) AS total,
                COALESCE(SUM(CASE WHEN mype_fit THEN 1 ELSE 0 END), 0) AS mype
         FROM tenders
-        WHERE segmentation_year = ? AND {column} IS NOT NULL AND trim({column}) <> ''
+        WHERE {condition} AND {column} IS NOT NULL AND trim({column}) <> ''
         GROUP BY 1
         ORDER BY total DESC, value
     """
-    departments = fetch_all(connection, group_sql.format(column="department"), [year])
-    categories = fetch_all(connection, group_sql.format(column="category"), [year])
-    methods = fetch_all(connection, group_sql.format(column="method"), [year])
+    departments = fetch_all(
+        connection,
+        group_sql.format(column="department", condition=condition),
+        year_parameters,
+    )
+    categories = fetch_all(
+        connection,
+        group_sql.format(column="category", condition=condition),
+        year_parameters,
+    )
+    methods = fetch_all(
+        connection,
+        group_sql.format(column="method", condition=condition),
+        year_parameters,
+    )
 
     return Stats(
         year=year,

@@ -81,7 +81,7 @@ export interface OpportunityPage {
 }
 
 export interface Meta {
-  cohort_year: number;
+  years: number[];
   departments: string[];
   categories: string[];
   methods: string[];
@@ -110,7 +110,7 @@ export interface MethodStat {
 }
 
 export interface Stats {
-  year: number;
+  year: number | null;
   total: number;
   mype_opportunities: number;
   missing_description: number;

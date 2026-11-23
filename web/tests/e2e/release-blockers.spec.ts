@@ -43,6 +43,16 @@ test.describe("parámetros de búsqueda fuera de rango", () => {
 
     await expect(page).toHaveURL(/page=2/);
     await expect(page).not.toHaveURL(/min_amount/);
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(17);
+    await expect(page.getByRole("heading", { level: 2, name: "37 oportunidades" })).toBeVisible();
+
+    await page.goto("/?year=2025&min_amount=abc&mype_only=0");
+    const yearNext = page.getByRole("link", { name: /Siguiente/ });
+    await expect(yearNext).toHaveAttribute("href", "/?year=2025&mype_only=0&page=2");
+    await yearNext.click();
+
+    await expect(page).toHaveURL(/year=2025/);
+    await expect(page).toHaveURL(/page=2/);
     await expect(page.getByTestId("opportunity-card")).toHaveCount(16);
     await expect(page.getByRole("heading", { level: 2, name: "36 oportunidades" })).toBeVisible();
   });
@@ -55,7 +65,14 @@ test.describe("parámetros de búsqueda fuera de rango", () => {
     await expect(page.getByText("Página fuera de rango")).toBeVisible();
     await page.getByRole("link", { name: "Ir a la página 1" }).click();
     await expect(page).not.toHaveURL(/page=/);
-    await expect(page.getByTestId("opportunity-card")).toHaveCount(7);
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(8);
+
+    await page.goto("/?year=2024&mype_only=0&page=5");
+    await expect(page.getByTestId("page-out-of-range")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ir a la página 1" })).toHaveAttribute(
+      "href",
+      "/?year=2024&mype_only=0",
+    );
   });
 
   test("la API rechaza páginas enormes con 422, no con 500", async ({ request }) => {
@@ -72,13 +89,14 @@ test.describe("estado vacío y etiquetas", () => {
   test("ofrece ver todas las oportunidades cuando el filtro MYPE oculta resultados", async ({
     page,
   }) => {
-    await page.goto("/?q=saneamiento");
+    await page.goto("/?year=2025&q=saneamiento");
 
     await expect(page.getByTestId("empty-state")).toBeVisible();
     const showAll = page.getByRole("link", { name: "Ver todas las oportunidades" });
-    await expect(showAll).toHaveAttribute("href", "/?q=saneamiento&mype_only=0");
+    await expect(showAll).toHaveAttribute("href", "/?q=saneamiento&year=2025&mype_only=0");
     await showAll.click();
 
+    await expect(page).toHaveURL(/year=2025/);
     await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
     await expect(page.getByText("Obra de saneamiento rural")).toBeVisible();
   });
@@ -181,5 +199,54 @@ test.describe("explicador por plantilla", () => {
 
     const explainerText = (await points.allInnerTexts()).join(" ");
     expect(explainerText).not.toMatch(/\b(elegible|puede postular|califica)\b/i);
+  });
+});
+
+test.describe("contrato de la API por año", () => {
+  test("agrega cohortes por defecto y filtra 2024/2025 con conteos exactos", async ({
+    request,
+  }) => {
+    const apiPort = process.env.CONTRATAMYPE_API_PORT ?? "8010";
+    const base = `http://127.0.0.1:${apiPort}`;
+
+    const meta = await (await request.get(`${base}/meta`)).json();
+    expect(meta.years).toEqual([2024, 2025]);
+    expect(meta.departments).toContain("LIMA");
+
+    const meta2024 = await (await request.get(`${base}/meta?year=2024`)).json();
+    expect(meta2024.years).toEqual([2024, 2025]);
+    expect(meta2024.departments).toEqual(["LIMA"]);
+    expect(meta2024.categories).toEqual(["goods"]);
+    expect(meta2024.amount_min).toBe(10000);
+    expect(meta2024.amount_max).toBe(10000);
+
+    const allStats = await (await request.get(`${base}/stats`)).json();
+    expect(allStats).toMatchObject({ year: null, total: 37, mype_opportunities: 8 });
+
+    const stats2024 = await (await request.get(`${base}/stats?year=2024`)).json();
+    expect(stats2024).toMatchObject({ year: 2024, total: 1, mype_opportunities: 1 });
+    expect(stats2024.by_department).toEqual([{ department: "LIMA", total: 1, mype: 1 }]);
+
+    const stats2025 = await (await request.get(`${base}/stats?year=2025`)).json();
+    expect(stats2025).toMatchObject({ year: 2025, total: 36, mype_opportunities: 7 });
+    expect(stats2025.by_department).toContainEqual({ department: "LIMA", total: 30, mype: 3 });
+    expect(stats2025.by_category).toContainEqual({ category: "goods", total: 4, mype: 3 });
+
+    const all = await (await request.get(`${base}/opportunities?page_size=100`)).json();
+    expect(all.total).toBe(37);
+
+    const only2024 = await (await request.get(`${base}/opportunities?year=2024`)).json();
+    expect(only2024.total).toBe(1);
+    expect(only2024.items.map((item: { ocid: string }) => item.ocid)).toEqual(["ocds-test-0010"]);
+
+    const only2025 = await (
+      await request.get(`${base}/opportunities?year=2025&page_size=100`)
+    ).json();
+    expect(only2025.total).toBe(36);
+    expect(
+      only2025.items.every(
+        (item: { segmentation_year: number }) => item.segmentation_year === 2025,
+      ),
+    ).toBe(true);
   });
 });

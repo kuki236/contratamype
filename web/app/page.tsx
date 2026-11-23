@@ -5,14 +5,8 @@ import { OpportunityCard } from "@/components/opportunity-card";
 import { Pagination } from "@/components/pagination";
 import { SearchForm } from "@/components/search-form";
 import { getMeta, getStats, searchOpportunities } from "@/lib/api";
-import {
-  COHORT_YEAR,
-  pageLabel,
-  parseFilters,
-  toOpportunityQuery,
-  toSearchParams,
-} from "@/lib/filters";
-import { formatPENCompact } from "@/lib/format";
+import { pageLabel, parseFilters, toOpportunityQuery, toSearchParams } from "@/lib/filters";
+import { cohortLabel, formatPENCompact } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -29,11 +23,18 @@ export default async function HomePage({
 }) {
   const filters = parseFilters(await searchParams);
   const query = toOpportunityQuery(filters);
+  const selectedYear = filters.year ? Number(filters.year) : undefined;
   const [meta, stats, results] = await Promise.all([
-    getMeta(COHORT_YEAR),
-    getStats(COHORT_YEAR),
+    getMeta(selectedYear),
+    getStats(selectedYear),
     searchOpportunities(query),
   ]);
+  const allCohortsLabel = cohortLabel(meta.years);
+  const cohortText =
+    selectedYear || meta.years.length === 1
+      ? `Cohorte ${selectedYear ?? allCohortsLabel}`
+      : `Cohortes ${allCohortsLabel}`;
+  const heroCountLabel = `Procesos ${selectedYear ?? allCohortsLabel}`;
   const outOfRange =
     results.items.length === 0 && results.pages > 0 && filters.page > results.pages;
   let hasNonMypeResults = false;
@@ -53,7 +54,7 @@ export default async function HomePage({
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-12 sm:px-6 sm:pt-16">
           <p className="inline-flex items-center gap-2 rounded-full border border-teal-300/30 bg-teal-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-teal-200">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-teal-300" />
-            Datos abiertos OECE · Cohorte {COHORT_YEAR}
+            Datos abiertos OECE · {cohortText}
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
             Encuentra oportunidades para tu MYPE
@@ -64,7 +65,7 @@ export default async function HomePage({
           </p>
           <dl className="mt-8 grid max-w-2xl grid-cols-1 gap-3 text-sm sm:grid-cols-3">
             <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-              <dt className="text-xs uppercase tracking-wide text-slate-400">Procesos 2025</dt>
+              <dt className="text-xs uppercase tracking-wide text-slate-400">{heroCountLabel}</dt>
               <dd className="mt-1 text-xl font-semibold">{stats.total.toLocaleString("es-PE")}</dd>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
@@ -98,8 +99,8 @@ export default async function HomePage({
               {results.total === 1 ? "oportunidad" : "oportunidades"}
             </h2>
             <p className="mt-1 text-sm text-stone-600">
-              {pageLabel(results)} · {filters.mype_only ? "Solo compatibles MYPE" : "Todas"} ·
-              Cohorte {COHORT_YEAR}
+              {pageLabel(results)} · {filters.mype_only ? "Solo compatibles MYPE" : "Todas"} ·{" "}
+              {cohortText}
             </p>
           </div>
           <a

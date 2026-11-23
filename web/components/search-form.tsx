@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MAX_QUERY_LENGTH, type SearchFilters } from "@/lib/filters";
+import { cohortLabel } from "@/lib/format";
 import { CATEGORY_LABELS } from "@/lib/labels";
 import type { Meta } from "@/lib/types";
 
@@ -41,7 +42,11 @@ export function SearchForm({ meta, filters }: { meta: Meta; filters: SearchFilte
     filters.min_amount ||
     filters.max_amount ||
     filters.status ||
+    filters.year ||
     !filters.mype_only;
+  const years = [...meta.years].sort((a, b) => b - a).map(String);
+  const cohortText =
+    meta.years.length === 1 ? `Cohorte ${meta.years[0]}` : `Cohortes ${cohortLabel(meta.years)}`;
 
   return (
     <form
@@ -71,6 +76,15 @@ export function SearchForm({ meta, filters }: { meta: Meta; filters: SearchFilte
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label htmlFor="year" className={labelClass}>
+            Año
+          </label>
+          <select id="year" name="year" defaultValue={filters.year} className={inputClass}>
+            <SelectOptions values={years} current={filters.year} />
+          </select>
+        </div>
+
         <div>
           <label htmlFor="department" className={labelClass}>
             Departamento
@@ -206,7 +220,7 @@ export function SearchForm({ meta, filters }: { meta: Meta; filters: SearchFilte
           </Link>
         ) : null}
         <span className="ml-auto text-xs text-stone-500">
-          Cohorte {meta.cohort_year} · {meta.departments.length} departamentos en la fuente
+          {cohortText} · {meta.departments.length} departamentos en la fuente
         </span>
       </div>
     </form>
