@@ -4,7 +4,7 @@
 
 ContrataMYPE convierte las contrataciones abiertas del OECE (estándar OCDS) en un buscador de oportunidades para micro y pequeñas empresas, un checklist de participación y un dashboard reproducible del mercado de compras públicas del Perú.
 
-> **Estado:** v1.0.0 — release local con pipeline, web/API, dashboard, alertas y bundle verificable. El test con una persona MYPE queda como validación manual pendiente. Ver [`ROADMAP.md`](ROADMAP.md) para la evidencia por fase.
+> **Estado:** v1.1.0 — cohortes 2024 + 2025, web/API, dashboard, alertas y bundle verificable. El test con una persona MYPE queda como validación manual pendiente. Ver [`ROADMAP.md`](ROADMAP.md) y [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
 
 ---
 
@@ -25,46 +25,47 @@ ContrataMYPE responde:
 2. **Analista/periodista** — dashboard de mercado y exploración.
 3. **Comprador/entidad** — vista read-only de mercado y competencia.
 
-## Qué incluye (v1.0.0)
+## Qué incluye (v1.1.0)
 
-- **Web app Next.js** con búsqueda por texto, región, categoría (rubro OCDS), monto y método. El estado no viene informado en el bulk 2025; la UI lo explica.
+- **Web app Next.js** con búsqueda por texto, región, categoría (rubro OCDS), monto, método y **año (Todos/2024/2025)**. El estado no viene informado en los bulk; la UI lo explica.
 - **Detalle de oportunidad** con entidad, objeto, valor, fechas, categoría y enlaces oficiales.
 - **MYPE fit** heurístico (monto > 0 + rubro + región), etiquetado como “compatible”, nunca como elegibilidad legal.
 - **Checklist/PDF** con pasos y documentos.
-- **Explicador LLM** acotado a campos oficiales, con citas y disclaimer; fallback a plantilla si no hay API key.
-- **Dashboard Power BI** con mercado por región/rubro/monto/evolución y participación MYPE.
+- **Explicador** con plantilla determinista, citas y disclaimer; adaptador Gemini opcional solo para la introducción.
+- **Dashboard Power BI** con mercado 2024–2025, selector de año, región/rubro/monto/evolución y participación MYPE.
 - **Alertas** por digest CSV/email y adaptador Power Automate (si hay licencia).
-- **Calidad de datos** con validaciones, reporte y checksums.
+- **Calidad de datos** con 12 validaciones, auditorías de cobertura y checksums.
 
 ## Fuente de datos
 
 - **OCDS / OECE** — Portal de Contrataciones Abiertas.
-- Bulk anual JSONL: `https://data.open-contracting.org/es/publication/135/download?name=2025.jsonl.gz`
-- 2025: **148.7 MB comprimido**, CC BY 4.0; **124,538 actualizaciones**, cohorte 2025 **59,141**.
+- Bulks anuales JSONL: `2024.jsonl.gz` y `2025.jsonl.gz` desde `https://data.open-contracting.org/es/publication/135/download?name=<año>.jsonl.gz`.
+- 2024: **125.6 MB comprimido**, cohorte same-year **46,328**; 2025: **148.7 MB**, cohorte **59,141**.
+- Cohorte fusionada 2024–2025 (incluye actualizaciones cross-year): **64,783 + 59,148 = 123,931 procesos**.
 - API: `https://contratacionesabiertas.oece.gob.pe/api/v1` (beta; 20 procesos/página).
 - Campos: `ocid`, comprador, `parties` (RUC/departamento), `tender` (título, descripción, categoría, método, valor, fechas), `awards`, `contracts`.
 
 Los archivos crudos no se commitean. La procedencia, hashes y perfil se documentan en `data/raw/README.md` y `docs/`.
 
-## Hallazgos 2025
+## Hallazgos 2024–2025
 
-- **59,141 procesos** por **S/ 66.62 mil millones**; **29,921 (50.6%)** son
-  compatibles con la heurística MYPE, pero suman solo **S/ 2.95 mil millones
-  (4.4% del valor)**.
-- `goods` y `services` concentran la MYPE (58.8% y 55.2% de sus procesos);
-  `works` queda fuera de la regla y explica la brecha de monto.
-- Los 4,952 procesos con monto 0 (“no informado”) no se marcan como compatibles:
-  no se puede evaluar el monto.
-- Lima tiene el 27.6% de los procesos y el 43.1% del monto; Cusco, Puno y
-  Ayacucho muestran mayor proporción MYPE.
-- 4,952 procesos (8.4%) traen monto 0 (“no informado”), no gratuito.
-- Detalle y SQL de reproducción en [`docs/market-findings-2025.md`](docs/market-findings-2025.md).
+- **123,931 procesos** por **S/ 158.34 mil millones**; **58,380 (47.1%)** son
+  compatibles con la heurística MYPE, pero suman solo **S/ 5.77 mil millones
+  (3.6% del valor)**.
+- Por año: 2024 = **64,783 procesos / S/ 91.70 mil millones / 28,458 MYPE**;
+  2025 = **59,148 / S/ 66.64 mil millones / 29,922 MYPE**.
+- `goods` (56,420) y `services` (54,120) concentran la MYPE; `works` (13,391)
+  queda fuera de la regla y explica la brecha de monto.
+- **14,335 procesos (11.6%)** traen monto 0 (“no informado”) y no se marcan
+  compatibles; **116,384 (93.9%)** registran inicio = fin del período.
+- 94,570 procesos (76.3%) tienen adjudicación y 85,496 (69.0%) contrato.
+- Detalle 2025 y SQL en [`docs/market-findings-2025.md`](docs/market-findings-2025.md); plan multi-año en [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
 
 ## Arquitectura
 
 ```mermaid
 flowchart LR
-    bulk[OCDS bulk 2025] --> ingest[Python ingest]
+    bulk[OCDS bulk 2024+2025] --> ingest[Python ingest]
     api[API OCDS] -. spot-check .-> ingest
     ingest --> normalize[Normalización]
     normalize --> duck[(DuckDB)]
@@ -102,7 +103,8 @@ como adaptador pendiente (ver `docs/architecture.md`).
 - [`docs/architecture.md`](docs/architecture.md) — componentes y ADRs.
 - [`docs/data-dictionary.md`](docs/data-dictionary.md) — granos y campos.
 - [`docs/quality-checks.md`](docs/quality-checks.md) — 12 checks y gate.
-- [`docs/market-findings-2025.md`](docs/market-findings-2025.md) — hallazgos reales.
+- [`docs/market-findings-2025.md`](docs/market-findings-2025.md) — hallazgos 2025.
+- [`docs/v1.1-plan.md`](docs/v1.1-plan.md) — cohortes 2024–2025, conteos y alcance.
 - [`docs/alerts.md`](docs/alerts.md) — digest y Power Automate.
 - [`docs/release.md`](docs/release.md) — bundle y tag local.
 
@@ -113,8 +115,9 @@ como adaptador pendiente (ver `docs/architecture.md`).
 py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 
-# 1. Pipeline (bulk local, gitignored)
+# 1. Pipeline (bulks locales, gitignored)
 python -m contratamype run \
+  --input data/raw/ocds/2024.jsonl.gz \
   --input data/raw/ocds/2025.jsonl.gz \
   --artifacts artifacts/2025 \
   --db data/processed/contratamype.duckdb
@@ -123,8 +126,8 @@ python -m contratamype run \
 uvicorn api.app:app --port 8000
 cd web && npm install && npm run dev
 
-# 3. Alertas
-python -m contratamype digest --artifacts artifacts/2025 --since 2025-01-01
+# 3. Alertas (cohortes 2024–2025)
+python -m contratamype digest --artifacts artifacts/2025 --since 2024-01-01
 
 # 4. Tests: rápido por defecto; lento solo en checkpoint
 pytest -m fast
@@ -136,9 +139,9 @@ pytest -m slow
 | Tier | Comando | Cuándo | Cobertura |
 |---|---|---|---|
 | Fast | `pytest -m fast` | Después de cada cambio; segundos | Fixtures deterministas, gate, exports, digest, release |
-| Slow | `pytest -m slow` | Solo checkpoint/release; ~25 s | Bulk 2025 real (local, gitignored) |
+| Slow | `pytest -m slow` | Solo checkpoint/release; ~55 s | Bulks 2024+2025 reales (local, gitignored) |
 | Full | `pytest -m "fast or slow"` | Antes de cerrar release | Fast + slow |
-| Web | `cd web && npx playwright test` | Al tocar web/API | 8 E2E con seed determinista |
+| Web | `cd web && npx playwright test` | Al tocar web/API | 23 E2E con seed determinista |
 | Power BI | `powerbi-report-author validate` + capturas | Al tocar dashboard | PBIR/PBIP y evidencia visual |
 
 `pytest.ini` excluye `slow` por defecto. El CI corre `pytest -m fast` y Playwright

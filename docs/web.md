@@ -250,15 +250,15 @@ Resultados de la verificación local (2026-11-22):
 - `npm run format:check`: OK (incluye `next-env.d.ts` en `.prettierignore` porque Next lo regenera con CRLF en Windows).
 - `ruff format` / `ruff check` sobre `api/` y `web/tests/*.py`: OK.
 - Fixture determinista: 38 filas en `tenders` (37 de la cohorte: 36 de 2025 + 1 de 2024; 1 histórica de 2023 excluida). `/stats` y `/opportunities` devuelven 37 en Todos, 36 con `year=2025` y 1 con `year=2024`; `mype_opportunities` = 8 en Todos.
-- La base real multi-cohorte no se usó para esta verificación: el pipeline de la rama estaba en reconstrucción durante la corrida. La DuckDB fusionada puede contener filas 2013–2023; el alcance `COHORT_YEARS` las excluye de `/meta`, `/stats` y `/opportunities`. Los conteos esperados son 64,783 (2024) + 59,148 (2025) = 123,931; se validan en el run final sobre la base fusionada. El contrato HTTP está verificado con el fixture.
+- Base real verificada con API/SQL el 23/11/2026: **123,931** procesos (2024: 64,783; 2025: 59,148), **58,380 MYPE** (2024: 28,458; 2025: 29,922), 25 departamentos y `years = [2024, 2025]`. Las filas 2013–2023 quedan fuera de `/meta`, `/stats` y `/opportunities`.
 - Sin DuckDB, `/opportunities` y `/health` responden 503 con mensaje genérico; la ruta absoluta solo queda en el log del servidor.
 
 ## 10. Límites conocidos
 
-- **Alcance 2024–2025:** el fixture E2E cubre 2024/2025 y el pipeline real puede dejar filas históricas 2013–2023 en la DuckDB. La API y la web solo sirven las cohortes `COHORT_YEARS = (2024, 2025)`; los años históricos no aparecen en conteos, búsqueda ni selector. La validación contra la DuckDB real fusionada de 123,931 procesos se hace en el run final del release.
-- **PostgreSQL diferido:** el adaptador PostgreSQL 17 queda fuera de v1.0 local porque el daemon de Docker no está disponible. La ruta implementada y verificada es la API read-only sobre DuckDB. El contrato HTTP permite sustituir la capa de datos sin tocar la web.
+- **Alcance 2024–2025:** el fixture E2E cubre 2024/2025 y el pipeline real deja filas históricas 2013–2023 en la DuckDB. La API y la web solo sirven las cohortes `COHORT_YEARS = (2024, 2025)`; los años históricos no aparecen en conteos, búsqueda ni selector. La base real fusionada se validó en **123,931** procesos y **58,380** MYPE.
+- **PostgreSQL diferido:** el adaptador PostgreSQL 17 queda fuera de v1.1 local porque el daemon de Docker no está disponible. La ruta implementada y verificada es la API read-only sobre DuckDB. El contrato HTTP permite sustituir la capa de datos sin tocar la web.
 - **Sin escritura ni cuentas:** no hay login, favoritos, alertas ni backoffice. La API es de solo lectura.
-- **`status` vacío en el bulk real:** la cohorte 2025 no trae estados de proceso en `tenders.status`. La API acepta `status`, pero la UI deshabilita el filtro y explica que la fuente no informa ese campo. El fixture sí trae estados para probar el contrato.
+- **`status` vacío en los bulks:** los snapshots 2024/2025 no traen estados de proceso en `tenders.status`. La API acepta `status`, pero la UI deshabilita el filtro y explica que la fuente no informa ese campo. El fixture sí trae estados para probar el contrato.
 - **Checklist no específico:** los 9 pasos son genéricos y citan campos oficiales; no inventan requisitos del proceso. Los documentos deben confirmarse en las bases.
 - **Gemini opcional:** `CONTRATAMYPE_EXPLAINER=gemini` usa Gemini solo para la introducción; los 8 puntos, citas y disclaimer siguen siendo de la plantilla. Sin key o ante error, fallback determinista. No se evaluó con una key real en v1.1.
 - **Búsqueda por subcadena:** `ILIKE` sin ranking ni sinónimos. Para volumen mayor conviene un índice de texto completo o PostgreSQL.
