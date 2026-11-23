@@ -1,0 +1,98 @@
+{
+  "cohort": "dataSegmentation 2024 (same-year, archivo aislado)",
+  "input": "data/raw/ocds/2024.jsonl.gz",
+  "input_bytes": 125638249,
+  "input_sha256": "9f50c84423c65605b4280d2d88b9da0853ebeb0b556d2dedf66add435cbde6e0",
+  "records": 46328,
+  "awards": 38000,
+  "contracts": 32781,
+  "merged_cohort": {
+    "inputs": [
+      "data/raw/ocds/2024.jsonl.gz",
+      "data/raw/ocds/2025.jsonl.gz"
+    ],
+    "records": 64783,
+    "mype_opportunities": 28458,
+    "mype_rate": 0.4393,
+    "note": "Cohorte 2024 después de fusionar y deduplicar ambos snapshots; snapshot_year solo prioriza la fila más nueva."
+  },
+  "quality": {
+    "amount_missing": 0,
+    "amount_zero": 7616,
+    "missing_department": 0,
+    "invalid_category": 0,
+    "period_missing": 2769,
+    "period_start_eq_end": 43559,
+    "awards_without_supplier": 1557,
+    "contracts_without_award": 0
+  },
+  "amounts": {
+    "count": 46328,
+    "min": 0.0,
+    "median": 120703.83,
+    "p90": 874231.05,
+    "p99": 12676133.48,
+    "max": 1003169595.71
+  },
+  "amount_buckets": {
+    "le_50000": 9741,
+    "le_100000": 20578,
+    "le_200000": 30051,
+    "le_400000": 37315,
+    "le_1000000": 42154
+  },
+  "categories": {
+    "goods": 22959,
+    "services": 19630,
+    "works": 3739
+  },
+  "departments": {
+    "LIMA": 13072,
+    "CUSCO": 4653,
+    "ANCASH": 2404,
+    "PUNO": 2302,
+    "AREQUIPA": 1927,
+    "JUNIN": 1920,
+    "AYACUCHO": 1909,
+    "PIURA": 1679,
+    "LA LIBERTAD": 1674,
+    "APURIMAC": 1564,
+    "CAJAMARCA": 1487,
+    "HUANUCO": 1303,
+    "SAN MARTIN": 1038,
+    "LORETO": 1000,
+    "ICA": 991,
+    "CALLAO": 959,
+    "UCAYALI": 944,
+    "MOQUEGUA": 921,
+    "HUANCAVELICA": 875,
+    "TACNA": 864,
+    "LAMBAYEQUE": 827,
+    "AMAZONAS": 720,
+    "PASCO": 609,
+    "MADRE DE DIOS": 441,
+    "TUMBES": 245
+  },
+  "methods": {
+    "Adjudicación Simplificada": 26952,
+    "Subasta Inversa Electrónica": 5867,
+    "Comparación de Precios": 3681,
+    "Contratación Directa": 2502,
+    "Licitación Pública": 2346,
+    "Concurso Público": 1617,
+    "Regímen Especial": 816,
+    "Contratación Internacional": 764,
+    "Convenio": 738,
+    "Adjudicación Selectiva": 316,
+    "Adjudicación Abreviada": 263,
+    "Adjudicación Simplificada-Homologación": 243,
+    "Procedimiento Especial de Contratación": 65,
+    "Adjudicación Simplificada-Decreto Legislativo N° 1577": 58,
+    "Adjudicación Simplificada - Decreto Urgencia 032-2023": 37,
+    "Selección de Consultores Individuales": 27,
+    "Adjudicación Simplificada - Ley N° 31728": 12,
+    "Procedimiento Especial de Contratación-Nueva Convocatoria por Desierto": 10,
+    "Adjudicación para Contrato Marco": 5,
+    "Adjudicación Simplificada - Séptima Disposición Complementaria Final Reg. Ley 30225": 4
+  }
+}

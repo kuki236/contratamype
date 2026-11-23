@@ -34,6 +34,15 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def combined_input_sha256(inputs: list[dict]) -> str:
+    if not inputs:
+        raise ValueError("at least one input is required")
+    if len(inputs) == 1:
+        return inputs[0]["sha256"]
+    lines = "\n".join(f"{Path(item['path']).name}:{item['sha256']}" for item in inputs)
+    return hashlib.sha256(lines.encode("utf-8")).hexdigest()
+
+
 def _sql_path(path: Path) -> str:
     return path.as_posix().replace("'", "''")
 
@@ -86,14 +95,15 @@ def export_mype_csv(
     settings: Settings,
 ) -> Path:
     path = artifacts_dir / "mype_opportunities.csv"
+    years = ", ".join(str(year) for year in settings.cohort_years)
     query = f"""
         SELECT ocid, title, description, category, amount_pen, currency,
                department, buyer_name, tender_start, tender_end,
-               segmentation_id, mype_fit
+               segmentation_id, segmentation_year, mype_fit
         FROM tenders
-        WHERE segmentation_year = {int(settings.cohort_year)}
+        WHERE segmentation_year IN ({years})
           AND mype_fit = true
-        ORDER BY amount_pen DESC, ocid
+        ORDER BY segmentation_year, amount_pen DESC, ocid
     """
     conn.execute(f"COPY ({query}) TO '{_sql_path(path)}' (FORMAT CSV, HEADER, DELIMITER ',')")
     return path
@@ -115,6 +125,7 @@ def write_manifest(
     timings: dict,
     settings: Settings,
 ) -> Path:
+    assert combined_input_sha256(summary["inputs"]) == input_sha256
     artifact_hashes = {
         name: sha256_file(artifacts_dir / name)
         for name in PAYLOAD_NAMES
@@ -124,11 +135,13 @@ def write_manifest(
         "generated_at": datetime.now(UTC).isoformat(),
         "input": summary["input"],
         "input_sha256": input_sha256,
+        "inputs": summary["inputs"],
         "settings": {
             "mype_threshold": str(settings.mype_threshold),
             "target_categories": list(settings.target_categories),
             "target_departments": list(settings.target_departments),
             "cohort_year": settings.cohort_year,
+            "cohort_years": list(settings.cohort_years),
             "pipeline_version": _pipeline_version(),
             "git_sha": _git_sha(),
         },
@@ -142,7 +155,9 @@ def write_manifest(
                 "awards",
                 "contracts",
                 "cohort_records",
+                "cohort_records_by_year",
                 "mype_opportunities",
+                "mype_opportunities_by_year",
             )
         },
         "quality_summary": quality["summary"],

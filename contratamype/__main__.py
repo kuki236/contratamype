@@ -10,7 +10,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from contratamype.alerts import build_digest
-from contratamype.config import Settings
+from contratamype.config import DEFAULT_COHORT_YEARS, Settings
 from contratamype.run import run_pipeline
 
 
@@ -19,11 +19,23 @@ def main(argv: list[str] | None = None) -> int:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_parser = subparsers.add_parser("run")
-    run_parser.add_argument("--input", type=Path, required=True)
+    run_parser.add_argument(
+        "--input",
+        type=Path,
+        action="append",
+        required=True,
+        help="OCDS snapshot; repeat for multiple years (processed in year order)",
+    )
     run_parser.add_argument("--artifacts", type=Path, default=Path("artifacts/e2e"))
     run_parser.add_argument("--db", type=Path, default=Path("data/processed/contratamype.duckdb"))
     run_parser.add_argument("--year", type=int, default=2025)
-    run_parser.add_argument("--cohort-year", type=int, default=2025)
+    run_parser.add_argument(
+        "--cohort-year",
+        type=int,
+        action="append",
+        default=None,
+        help="cohort year; repeat for several (default: 2024 and 2025)",
+    )
     run_parser.add_argument("--mype-threshold", type=Decimal, default=Decimal("200000"))
 
     digest_parser = subparsers.add_parser("digest")
@@ -56,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
         artifacts_dir=args.artifacts,
         db_path=args.db,
         year=args.year,
-        cohort_year=args.cohort_year,
+        cohort_years=tuple(args.cohort_year) if args.cohort_year else DEFAULT_COHORT_YEARS,
         mype_threshold=args.mype_threshold,
     )
     summary = run_pipeline(args.input, settings)

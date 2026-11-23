@@ -165,7 +165,11 @@ def _contract_rows(release: dict[str, Any]) -> list[dict[str, Any]]:
     return contracts
 
 
-def normalize_release(release: dict[str, Any], settings: Settings) -> Normalized:
+def normalize_release(
+    release: dict[str, Any],
+    settings: Settings,
+    snapshot_year: int,
+) -> Normalized:
     ocid = _text(release.get("ocid")) or ""
     tender = release.get("tender") or {}
     buyer = release.get("buyer") or {}
@@ -223,6 +227,7 @@ def normalize_release(release: dict[str, Any], settings: Settings) -> Normalized
         "department_code": department_code,
         "segmentation_id": segmentation_id,
         "segmentation_year": segmentation_year,
+        "snapshot_year": int(snapshot_year),
         "mype_fit": bool(mype_fit),
         "dates_valid": start_valid and end_valid and published_valid,
         "period_start_eq_end": bool(start and end and start == end),

@@ -29,6 +29,7 @@ TENDER_COLUMNS = [
     "department_code",
     "segmentation_id",
     "segmentation_year",
+    "snapshot_year",
     "mype_fit",
     "dates_valid",
     "period_start_eq_end",
@@ -56,7 +57,7 @@ RAW_TABLES = {
 
 DATE_COLUMNS = {"published_date", "tender_start", "tender_end", "award_date", "signed_date"}
 DECIMAL_COLUMNS = {"amount_pen"}
-INT_COLUMNS = {"segmentation_year"}
+INT_COLUMNS = {"segmentation_year", "snapshot_year"}
 BOOL_COLUMNS = {"mype_fit", "dates_valid", "period_start_eq_end"}
 
 
@@ -74,7 +75,8 @@ def init_schema(conn: duckdb.DuckDBPyConnection) -> None:
             published_date DATE, tender_start DATE, tender_end DATE, status VARCHAR,
             buyer_id VARCHAR, buyer_name VARCHAR, department VARCHAR,
             department_code VARCHAR, segmentation_id VARCHAR, segmentation_year INTEGER,
-            mype_fit BOOLEAN, dates_valid BOOLEAN, period_start_eq_end BOOLEAN
+            snapshot_year INTEGER, mype_fit BOOLEAN, dates_valid BOOLEAN,
+            period_start_eq_end BOOLEAN
         )
         """
     )
@@ -172,7 +174,7 @@ def finalize(conn: duckdb.DuckDBPyConnection) -> None:
             SELECT *,
                    ROW_NUMBER() OVER (
                        PARTITION BY ocid
-                       ORDER BY published_date DESC NULLS LAST, title
+                       ORDER BY published_date DESC NULLS LAST, snapshot_year DESC, title
                    ) AS rn
             FROM raw_tenders
         )
@@ -221,9 +223,27 @@ def finalize(conn: duckdb.DuckDBPyConnection) -> None:
     )
 
 
-def counts(conn: duckdb.DuckDBPyConnection, cohort_year: int) -> dict[str, int]:
+def counts(conn: duckdb.DuckDBPyConnection, cohort_years: tuple[int, ...]) -> dict:
     def scalar(query: str) -> int:
         return int(conn.execute(query).fetchone()[0])
+
+    years = tuple(sorted({int(year) for year in cohort_years}))
+    if not years:
+        raise ValueError("cohort_years must not be empty")
+    year_list = ", ".join(str(year) for year in years)
+    cohort_by_year = dict.fromkeys(years, 0)
+    mype_by_year = dict.fromkeys(years, 0)
+    for year, total in conn.execute(
+        f"SELECT segmentation_year, COUNT(*) FROM tenders "
+        f"WHERE segmentation_year IN ({year_list}) GROUP BY segmentation_year"
+    ).fetchall():
+        cohort_by_year[int(year)] = int(total)
+    for year, total in conn.execute(
+        f"SELECT segmentation_year, COUNT(*) FROM tenders "
+        f"WHERE segmentation_year IN ({year_list}) AND mype_fit = true "
+        f"GROUP BY segmentation_year"
+    ).fetchall():
+        mype_by_year[int(year)] = int(total)
 
     return {
         "raw_records": scalar("SELECT COUNT(*) FROM raw_tenders"),
@@ -232,11 +252,8 @@ def counts(conn: duckdb.DuckDBPyConnection, cohort_year: int) -> dict[str, int]:
         "suppliers": scalar("SELECT COUNT(*) FROM suppliers"),
         "awards": scalar("SELECT COUNT(*) FROM awards"),
         "contracts": scalar("SELECT COUNT(*) FROM contracts"),
-        "cohort_records": scalar(
-            f"SELECT COUNT(*) FROM tenders WHERE segmentation_year = {int(cohort_year)}"
-        ),
-        "mype_opportunities": scalar(
-            f"SELECT COUNT(*) FROM tenders "
-            f"WHERE segmentation_year = {int(cohort_year)} AND mype_fit = true"
-        ),
+        "cohort_records": sum(cohort_by_year.values()),
+        "cohort_records_by_year": dict(cohort_by_year),
+        "mype_opportunities": sum(mype_by_year.values()),
+        "mype_opportunities_by_year": dict(mype_by_year),
     }

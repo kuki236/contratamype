@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -49,10 +50,19 @@ def iter_releases(payload: dict) -> Iterator[dict]:
     yield payload
 
 
+YEAR_PATTERN = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
+
+
+def snapshot_year_for(path: Path, default: int) -> int:
+    match = YEAR_PATTERN.search(path.name)
+    return int(match.group(1)) if match else int(default)
+
+
 def iter_normalized(
     path: Path,
     settings: Settings,
     stats: RawStats,
+    snapshot_year: int,
 ) -> Iterator[Normalized]:
     opener = gzip.open if path.suffix == ".gz" else open
     with opener(path, "rt", encoding="utf-8", errors="replace") as handle:
@@ -83,4 +93,4 @@ def iter_normalized(
                     stats.missing_title += 1
                     stats.sample({"line": line_number, "ocid": ocid, "missing": "title"})
                 stats.records += 1
-                yield normalize_release(release, settings)
+                yield normalize_release(release, settings, snapshot_year)

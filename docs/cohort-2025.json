@@ -1,11 +1,21 @@
 {
-  "cohort": "dataSegmentation 2025",
+  "cohort": "dataSegmentation 2025 (same-year, archivo aislado)",
   "input": "data/raw/ocds/2025.jsonl.gz",
   "input_bytes": 148719573,
   "input_sha256": "65444cad90df5c559584d75124884734bff2875616de716d949aa5b858bd160b",
   "records": 59141,
   "awards": 47115,
   "contracts": 42650,
+  "merged_cohort": {
+    "inputs": [
+      "data/raw/ocds/2024.jsonl.gz",
+      "data/raw/ocds/2025.jsonl.gz"
+    ],
+    "records": 59148,
+    "mype_opportunities": 29922,
+    "mype_rate": 0.5059,
+    "note": "Cohorte 2025 después de fusionar y deduplicar ambos snapshots; snapshot_year solo prioriza la fila más nueva."
+  },
   "quality": {
     "amount_missing": 0,
     "amount_zero": 4952,

@@ -64,26 +64,36 @@ def _check(
 
 
 def _audits(conn: duckdb.DuckDBPyConnection, settings: Settings) -> list[dict]:
-    year = int(settings.cohort_year)
-    expected_months = [f"{year}-{month:02d}" for month in range(1, 13)]
-    observed_months = {
-        row[0]
-        for row in conn.execute(
-            "SELECT DISTINCT substr(segmentation_id, 1, 7) FROM tenders "
-            "WHERE segmentation_year = ? AND segmentation_id IS NOT NULL",
-            [year],
-        ).fetchall()
-    }
-    missing_months = [month for month in expected_months if month not in observed_months]
-    present_months = [month for month in expected_months if month in observed_months]
+    years = [int(year) for year in settings.cohort_years]
+    months_by_year: dict[str, dict] = {}
+    missing_months: list[str] = []
+    observed_months = 0
+    for year in years:
+        expected_months = [f"{year}-{month:02d}" for month in range(1, 13)]
+        present = {
+            row[0]
+            for row in conn.execute(
+                "SELECT DISTINCT substr(segmentation_id, 1, 7) FROM tenders "
+                "WHERE segmentation_year = ? AND segmentation_id IS NOT NULL",
+                [year],
+            ).fetchall()
+        }
+        missing = [month for month in expected_months if month not in present]
+        months_by_year[str(year)] = {
+            "expected": len(expected_months),
+            "observed": len(expected_months) - len(missing),
+            "missing": missing,
+        }
+        observed_months += len(expected_months) - len(missing)
+        missing_months.extend(missing)
 
+    year_list = ", ".join(str(year) for year in years)
     expected_codes = sorted(set(DEPARTMENT_CODES.values()))
     observed_codes = {
         row[0]
         for row in conn.execute(
             "SELECT DISTINCT department_code FROM tenders "
-            "WHERE segmentation_year = ? AND department_code IS NOT NULL",
-            [year],
+            f"WHERE segmentation_year IN ({year_list}) AND department_code IS NOT NULL"
         ).fetchall()
     }
     missing_codes = [code for code in expected_codes if code not in observed_codes]
@@ -143,8 +153,9 @@ def _audits(conn: duckdb.DuckDBPyConnection, settings: Settings) -> list[dict]:
         {
             "name": "month_coverage",
             "status": "pass" if not missing_months else "incomplete",
-            "expected": len(expected_months),
-            "observed": len(present_months),
+            "expected": 12 * len(years),
+            "observed": observed_months,
+            "by_year": months_by_year,
             "missing": missing_months,
         },
         {
@@ -236,25 +247,26 @@ def run_checks(
         )
     )
 
+    tenders_count = _scalar(conn, "SELECT COUNT(*) FROM tenders")
     duplicates = _scalar(
         conn,
-        "SELECT COUNT(*) - COUNT(DISTINCT ocid) FROM raw_tenders",
+        "SELECT COUNT(*) - COUNT(DISTINCT ocid) FROM tenders",
     )
     checks.append(
         _check(
             "ocid_unique",
             "tender",
             "fail",
-            raw_count,
+            tenders_count,
             duplicates,
             _rows(
                 conn,
-                "SELECT ocid, COUNT(*) AS rows FROM raw_tenders "
+                "SELECT ocid, COUNT(*) AS rows FROM tenders "
                 "GROUP BY ocid HAVING COUNT(*) > 1 ORDER BY rows DESC, ocid",
             )
             if duplicates
             else [],
-            "COUNT(*) - COUNT(DISTINCT ocid) FROM raw_tenders",
+            "COUNT(*) - COUNT(DISTINCT ocid) FROM tenders",
             0.0,
         )
     )
@@ -408,6 +420,7 @@ def run_checks(
     blocking = [check["name"] for check in checks if check["status"] == "fail"]
     return {
         "generated_at": datetime.now(UTC).isoformat(),
+        "cohort_years": list(settings.cohort_years),
         "cohort_year": settings.cohort_year,
         "summary": {
             "total_checks": len(checks),
