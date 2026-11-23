@@ -61,3 +61,35 @@ implementa el envío ni la baja: el adaptador debe incluir ambos en el correo.
 - Primera corrida desde 2024-01-01: **58,380 enviados**.
 - Segunda corrida idéntica: **0 enviados**, estado con 58,380 OCIDs.
 - El digest incluye cohortes 2024/2025; `--cohort-year` es repetible para acotar.
+
+## 6. Envío local con Outlook (sin OneDrive ni Premium)
+
+`scripts/run_digest_and_email.ps1` ejecuta el digest y `scripts/send_digest.ps1`
+adjunta el CSV en un correo de Outlook Desktop. No usa OneDrive, SharePoint ni
+Power Automate.
+
+```powershell
+# Validar sin enviar
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_digest_and_email.ps1 -DryRun
+
+# Enviar (requiere Outlook Desktop con una cuenta configurada)
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\run_digest_and_email.ps1
+```
+
+- Si el CSV solo tiene cabecera, no envía nada.
+- El correo va a `sebastian.tejeda@unmsm.edu.pe` por defecto; se puede cambiar con
+  `-To` en `send_digest.ps1`.
+- Si Outlook no está configurado, Windows abrirá el asistente; no se envía nada
+  hasta completarlo.
+
+Programación diaria con el Programador de tareas:
+
+```powershell
+schtasks /Create /SC DAILY /TN "ContrataMYPE Digest" `
+  /TR "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"C:\ruta\a\contratamype\scripts\run_digest_and_email.ps1\"" `
+  /ST 08:00
+```
+
+Para el CV, esto se describe como **automatización local Python + Outlook +
+Programador de tareas**, no como Power Automate. Power Automate queda como flujo
+manual estándar/documentado si se necesita la etiqueta.
