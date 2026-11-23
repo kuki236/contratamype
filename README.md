@@ -4,7 +4,7 @@
 
 ContrataMYPE convierte las contrataciones abiertas del OECE (estándar OCDS) en un buscador de oportunidades para micro y pequeñas empresas, un checklist de participación y un dashboard reproducible del mercado de compras públicas del Perú.
 
-> **Estado:** v1.1.0 — cohortes 2024 + 2025, web/API, dashboard, alertas y bundle verificable. El test con una persona MYPE queda como validación manual pendiente. Ver [`ROADMAP.md`](ROADMAP.md) y [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
+> **Estado:** v1.1.1 — cohortes 2024 + 2025, web/API, dashboard, alertas y bundle verificable. El test con una persona MYPE queda como validación manual pendiente. Ver [`ROADMAP.md`](ROADMAP.md) y [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
 
 ---
 

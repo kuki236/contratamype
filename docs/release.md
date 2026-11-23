@@ -1,7 +1,7 @@
-# Release local — ContrataMYPE v1.1.0
+# Release local — ContrataMYPE v1.1.1
 
 El repositorio está publicado en GitHub (`kuki236/contratamype`). El release se
-construye como un bundle verificable en `dist/v1.1.0/` y se publica como assets
+construye como un bundle verificable en `dist/v1.1.1/` y se publica como assets
 del tag. El bundle incluye las cohortes 2024 + 2025.
 
 ## 1. Prerrequisitos
@@ -26,19 +26,20 @@ python -m contratamype run `
 pytest -m "fast or slow"
 
 # 3. Bundle
-python scripts/build_release.py --version v1.1.0
+python scripts/build_release.py --version v1.1.1 --notes-file docs/release-notes-v1.1.1.md
 
 # 4. Verificar el bundle (exit 1 si algo falla)
-python scripts/verify_release.py --root dist/v1.1.0
+python scripts/verify_release.py --root dist/v1.1.1
 
 # 5. Tag y release
-git tag -a v1.1.0 -m "ContrataMYPE v1.1.0"
-git push origin v1.1.0
-gh release create v1.1.0 --title "ContrataMYPE v1.1.0" --notes-file dist/v1.1.0/RELEASE_NOTES.md
+git tag -a v1.1.1 -m "ContrataMYPE v1.1.1"
+git push origin v1.1.1
+gh release create v1.1.1 --title "ContrataMYPE v1.1.1" --notes-file dist/v1.1.1/RELEASE_NOTES.md
 ```
 
 `build_release.py` valida y verifica los artefactos del pipeline antes de
 reemplazar el bundle anterior; si algo falla, el bundle previo queda intacto.
+`--notes-file` reemplaza las notas generadas (útil en patch releases).
 `verify_release.py` revisa `SHA256SUMS`, los archivos requeridos, la ausencia de
 `data/raw` y `.env`, e imprime un resumen JSON con `ok`, `files`,
 `checksums_verified` y `errors`.
@@ -59,7 +60,7 @@ El bundle **no** incluye el bulk crudo, la base DuckDB ni secretos.
 
 - [ ] `pytest -m "fast or slow"` verde.
 - [ ] Gate abierto (0 fails) y `run_manifest.json` con SHA del bulk válido.
-- [ ] `scripts/verify_release.py --root dist/v1.1.0` retorna 0 y `checksums_verified` cubre todo el bundle.
+- [ ] `scripts/verify_release.py --root dist/v1.1.1` retorna 0 y `checksums_verified` cubre todo el bundle.
 - [ ] Web: búsqueda, detalle, checklist/PDF y estado vacío probados con Playwright.
 - [ ] Power BI: `powerbi-report-author validate` 0/0 y capturas de ambas páginas.
 - [ ] Digest real: primera corrida envía, segunda envía 0.

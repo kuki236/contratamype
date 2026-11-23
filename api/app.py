@@ -32,7 +32,7 @@ from api.schemas import (
 
 app = FastAPI(
     title="ContrataMYPE API",
-    version="1.1.0",
+    version="1.1.1",
     description=(
         "API de solo lectura sobre DuckDB. La etiqueta mype_fit se lee de la base; "
         "la API no recalcula la regla MYPE. Sin parámetro year, los endpoints "

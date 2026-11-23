@@ -140,6 +140,7 @@
 - [x] Dashboard con selector de año, refresh y capturas.
 - [x] Adaptador Gemini opcional usando `.env` (introducción; fallback sin key).
 - [x] Release `v1.1.0` con bundle, checksums y tag.
+- [x] Patch `v1.1.1`: PBIX en el bundle, fixes de PBIP/Gemini y scripts de digest.
 
 **Datos:** cohorte fusionada **123,931** (2024: 64,783; 2025: 59,148); **MYPE 58,380 (47.1%)**; quality 7 pass / 5 warn / 0 fail. Detalle en `docs/v1.1-plan.md`.
 
