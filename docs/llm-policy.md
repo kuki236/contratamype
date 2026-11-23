@@ -37,19 +37,23 @@ como dato público de la fuente.
 
 ## 4. Fallback de plantilla (camino por defecto)
 
-Sin `GEMINI_API_KEY`, la app usa una plantilla determinista con los mismos
-campos y disclaimer. Debe funcionar offline y ser la referencia para comparar
-cualquier salida del LLM.
+Sin `GEMINI_API_KEY` o con `CONTRATAMYPE_EXPLAINER=template`, la app usa una
+plantilla determinista con los mismos campos y disclaimer. Debe funcionar
+offline y ser la referencia para comparar cualquier salida del LLM.
 
-## 5. Adaptador Gemini (opcional)
+## 5. Adaptador Gemini (opcional, implementado para la introducción)
 
-Si existe key válida:
+La web llama a Gemini solo para redactar la **introducción**. Los 8 puntos,
+las citas y el disclaimer siguen viniendo de la plantilla; así el modelo no
+puede agregar requisitos ni decidir elegibilidad.
 
-- `temperature` baja (≤ 0.3), sin herramientas externas.
-- Prompt de sistema con las prohibiciones de §3 y el esquema de §2.
-- Respuesta estructurada; cada dato clave incluye el nombre del campo oficial.
-- Timeout y fallback a plantilla ante error, cuota o respuesta inválida.
-- La key vive en `.env`; nunca en el cliente ni en Git.
+- `temperature` baja (0.2), sin herramientas externas.
+- Prompt con las prohibiciones de §3 y solo campos oficiales.
+- Timeout de 5 s; cualquier error, cuota o texto con lenguaje de elegibilidad
+  cae a la plantilla.
+- La key vive en `web/.env.local` (`GEMINI_API_KEY`, `GEMINI_MODEL`), nunca en
+  el cliente ni en Git. El `.env` raíz es para la API/pipeline, no para Next.js.
+- El modo se activa con `CONTRATAMYPE_EXPLAINER=gemini`.
 
 ## 6. Evaluación (10–20 oportunidades reales)
 

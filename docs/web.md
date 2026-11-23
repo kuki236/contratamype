@@ -1,6 +1,6 @@
 # Web app y API de ContrataMYPE
 
-> **Alcance:** v1.1 multi-cohorte (2024 + 2025): búsqueda, detalle, estados vacíos, checklist/PDF y E2E con datos sembrados, con filtro de año y agregados por defecto sobre la cohorte 2024–2025. Incluye la parte visible de Fase 5 (explicador por plantilla, citas de campos y disclaimer). El adaptador Gemini queda preparado como punto de extensión, no implementado.
+> **Alcance:** v1.1 multi-cohorte (2024 + 2025): búsqueda, detalle, estados vacíos, checklist/PDF y E2E con datos sembrados, con filtro de año y agregados por defecto sobre la cohorte 2024-2025. Incluye explicador por plantilla con citas/disclaimer y un adaptador Gemini opcional que solo redacta la introducción; los puntos y citas siguen viniendo de la plantilla.
 >
 > **Ruta local del producto:** Next.js en `web/` → API FastAPI read-only en `api/` → DuckDB del pipeline en `data/processed/contratamype.duckdb`.
 
@@ -82,7 +82,9 @@ La build no necesita la API encendida: las páginas que consultan datos son din�
 |---|---|---|---|
 | `CONTRATAMYPE_DB` | API | `data/processed/contratamype.duckdb` | Ruta de la DuckDB. Se abre en modo `read_only`. Los tests la apuntan al fixture sembrado. |
 | `CONTRATAMYPE_API_URL` | Web | `http://127.0.0.1:8000` | Base URL que usan los Server Components y la ruta del PDF. |
-| `CONTRATAMYPE_EXPLAINER` | Web | `template` | Selección de explicador. Solo `template` existe; un valor desconocido (por ejemplo `gemini`) cae a la plantilla. No hay llamada de red ni API key. |
+| `CONTRATAMYPE_EXPLAINER` | Web | `template` | `template` o `gemini`. Gemini solo redacta la introducción; sin key o si falla, se usa la plantilla. |
+| `GEMINI_API_KEY` | Web | vacío | Key del adaptador Gemini; vive en `web/.env.local`, nunca en Git. |
+| `GEMINI_MODEL` | Web | `gemini-2.0-flash` | Modelo usado por el adaptador. |
 | `CONTRATAMYPE_API_PORT` | Playwright | `8010` | Puerto del `webServer` de la API en tests. |
 | `CONTRATAMYPE_WEB_PORT` | Playwright | `3100` | Puerto del `webServer` de Next.js en tests. |
 | `CONTRATAMYPE_TEST_DB` | Playwright | `%TEMP%\contratamype-e2e\contratamype-test.duckdb` | Ruta alternativa del fixture determinista. |
@@ -108,7 +110,7 @@ Decisiones de contrato:
 - **Año:** `year` es un entero opcional entre 2000 y 2100. Aplica a `/meta`, `/opportunities` y `/stats`; detalle, checklist y PDF no filtran por año porque el OCID es único.
 - **`Meta.years`** reemplaza a `cohort_year`: lista solo las cohortes 2024/2025 presentes en la base, ordenadas ascendente, incluso cuando la consulta pide un año. La web deriva de ahí las opciones del selector.
 - **`Stats.year`** repite el filtro aplicado y es `null` cuando se agregó la cohorte 2024–2025.
-- Conteos esperados de la base real v1.1 (ambas cohortes son disjuntas): 2024 = **46,328**, 2025 = **59,141**, cohorte por defecto = **105,469**. Las cohortes se suman; no hay solapamiento por OCID. Las filas 2013–2023 no suman.
+- Conteos de la base real v1.1: 2024 = **64,783**, 2025 = **59,148**, cohorte por defecto = **123,931**; **MYPE 58,380 (47.1%)**. Incluye 18,455 filas 2024 que vienen actualizadas en el snapshot 2025 y 7 de 2025 en el snapshot 2024. Las filas 2013–2023 quedan fuera.
 - `mype_only` en la API es `false` por defecto para permitir explorar toda la cohorte. La UI arranca con **Solo compatibles MYPE**; el valor viaja explícito en la URL (`mype_only=1|0`).
 - Los montos viajan como números JSON para presentación. En DuckDB son `DECIMAL(18,2)`; a esta escala (máximo ~S/ 1,134 millones) los centavos se representan sin pérdida en un double.
 - La API no reimplementa el umbral, las categorías objetivo ni los departamentos objetivo de la regla MYPE. Solo expone `tenders.mype_fit`.
@@ -248,17 +250,17 @@ Resultados de la verificación local (2026-11-22):
 - `npm run format:check`: OK (incluye `next-env.d.ts` en `.prettierignore` porque Next lo regenera con CRLF en Windows).
 - `ruff format` / `ruff check` sobre `api/` y `web/tests/*.py`: OK.
 - Fixture determinista: 38 filas en `tenders` (37 de la cohorte: 36 de 2025 + 1 de 2024; 1 histórica de 2023 excluida). `/stats` y `/opportunities` devuelven 37 en Todos, 36 con `year=2025` y 1 con `year=2024`; `mype_opportunities` = 8 en Todos.
-- La base real multi-cohorte no se usó para esta verificación: el pipeline de la rama estaba en reconstrucción durante la corrida. La DuckDB fusionada puede contener filas 2013–2023; el alcance `COHORT_YEARS` las excluye de `/meta`, `/stats` y `/opportunities`. Los conteos esperados son 46,328 (2024) + 59,141 (2025) = 105,469; quedan pendientes de validar sobre la base fusionada. El contrato HTTP está verificado con el fixture.
+- La base real multi-cohorte no se usó para esta verificación: el pipeline de la rama estaba en reconstrucción durante la corrida. La DuckDB fusionada puede contener filas 2013–2023; el alcance `COHORT_YEARS` las excluye de `/meta`, `/stats` y `/opportunities`. Los conteos esperados son 64,783 (2024) + 59,148 (2025) = 123,931; se validan en el run final sobre la base fusionada. El contrato HTTP está verificado con el fixture.
 - Sin DuckDB, `/opportunities` y `/health` responden 503 con mensaje genérico; la ruta absoluta solo queda en el log del servidor.
 
 ## 10. Límites conocidos
 
-- **Alcance 2024–2025:** el fixture E2E cubre 2024/2025 y el pipeline real puede dejar filas históricas 2013–2023 en la DuckDB. La API y la web solo sirven las cohortes `COHORT_YEARS = (2024, 2025)`; los años históricos no aparecen en conteos, búsqueda ni selector. La validación contra la DuckDB real fusionada de 105,469 procesos depende de la corrida del pipeline multi-input.
+- **Alcance 2024–2025:** el fixture E2E cubre 2024/2025 y el pipeline real puede dejar filas históricas 2013–2023 en la DuckDB. La API y la web solo sirven las cohortes `COHORT_YEARS = (2024, 2025)`; los años históricos no aparecen en conteos, búsqueda ni selector. La validación contra la DuckDB real fusionada de 123,931 procesos se hace en el run final del release.
 - **PostgreSQL diferido:** el adaptador PostgreSQL 17 queda fuera de v1.0 local porque el daemon de Docker no está disponible. La ruta implementada y verificada es la API read-only sobre DuckDB. El contrato HTTP permite sustituir la capa de datos sin tocar la web.
 - **Sin escritura ni cuentas:** no hay login, favoritos, alertas ni backoffice. La API es de solo lectura.
 - **`status` vacío en el bulk real:** la cohorte 2025 no trae estados de proceso en `tenders.status`. La API acepta `status`, pero la UI deshabilita el filtro y explica que la fuente no informa ese campo. El fixture sí trae estados para probar el contrato.
 - **Checklist no específico:** los 9 pasos son genéricos y citan campos oficiales; no inventan requisitos del proceso. Los documentos deben confirmarse en las bases.
-- **Explicador Gemini diferido:** `CONTRATAMYPE_EXPLAINER` selecciona un proveedor, pero solo `template` está implementado. Agregar Gemini requiere un adaptador, API key y evaluación; no es requisito para correr la app ni los tests.
+- **Gemini opcional:** `CONTRATAMYPE_EXPLAINER=gemini` usa Gemini solo para la introducción; los 8 puntos, citas y disclaimer siguen siendo de la plantilla. Sin key o ante error, fallback determinista. No se evaluó con una key real en v1.1.
 - **Búsqueda por subcadena:** `ILIKE` sin ranking ni sinónimos. Para volumen mayor conviene un índice de texto completo o PostgreSQL.
 - **Una conexión DuckDB por request:** suficiente para uso local y pruebas. Para concurrencia real, el adaptador PostgreSQL es el camino previsto.
 - **Datos de la fuente:** montos 0, fechas inicio=fin, awards sin proveedor y contratos sin award se muestran como tales; no se completan con supuestos.

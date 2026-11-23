@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { MypeBadge } from "@/components/mype-badge";
 import { Notice } from "@/components/notice";
 import { ApiError, getOpportunity } from "@/lib/api";
-import { MYPE_DISCLAIMER, getExplainer } from "@/lib/explainer";
+import { MYPE_DISCLAIMER } from "@/lib/explainer";
+import { explainOpportunity } from "@/lib/explainer-server";
 import { formatAmountUseful, formatDate, formatPEN } from "@/lib/format";
 import { categoryLabel, methodLabel, statusLabel } from "@/lib/labels";
 import type { OpportunityDetail } from "@/lib/types";
@@ -73,7 +74,7 @@ export default async function OpportunityPage({ params }: { params: Promise<{ oc
   const title = detail.title?.trim() || "Proceso sin título";
   const buyerName = detail.buyer?.name ?? detail.buyer_name;
   const alerts = dataAlerts(detail);
-  const explanation = getExplainer()(detail);
+  const explanation = await explainOpportunity(detail);
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">

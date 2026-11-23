@@ -60,7 +60,7 @@ function missingDataText(detail: OpportunityDetail): string {
     : "No se detectaron campos faltantes entre los datos que muestra esta ficha.";
 }
 
-const templateExplainer: Explainer = (detail) => {
+export const templateExplainer: Explainer = (detail) => {
   const buyer = detail.buyer;
   const buyerText = buyer?.name
     ? `${buyer.name}${buyer.ruc ? ` (RUC ${buyer.ruc})` : ""}, ${
