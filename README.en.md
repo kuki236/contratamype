@@ -67,7 +67,7 @@ Raw files are never committed. Provenance, hashes and profile live in
 - **14,335 processes (11.6%)** report amount 0 (“not reported”) and are not
   marked compatible; **116,384 (93.9%)** report start = end.
 - 94,570 processes (76.3%) have an award and 85,496 (69.0%) a contract.
-- 2025 details and SQL in [`docs/market-findings-2025.md`](docs/market-findings-2025.md); multi-year plan in [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
+- Combined details in [`docs/market-findings-2024-2025.md`](docs/market-findings-2024-2025.md); 2025 profile in [`docs/market-findings-2025.md`](docs/market-findings-2025.md) and multi-year plan in [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
 
 ## Architecture
 

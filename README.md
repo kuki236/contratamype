@@ -59,7 +59,7 @@ Los archivos crudos no se commitean. La procedencia, hashes y perfil se document
 - **14,335 procesos (11.6%)** traen monto 0 (“no informado”) y no se marcan
   compatibles; **116,384 (93.9%)** registran inicio = fin del período.
 - 94,570 procesos (76.3%) tienen adjudicación y 85,496 (69.0%) contrato.
-- Detalle 2025 y SQL en [`docs/market-findings-2025.md`](docs/market-findings-2025.md); plan multi-año en [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
+- Detalle combinado en [`docs/market-findings-2024-2025.md`](docs/market-findings-2024-2025.md); perfil 2025 en [`docs/market-findings-2025.md`](docs/market-findings-2025.md) y plan multi-año en [`docs/v1.1-plan.md`](docs/v1.1-plan.md).
 
 ## Arquitectura
 
@@ -104,6 +104,7 @@ como adaptador pendiente (ver `docs/architecture.md`).
 - [`docs/data-dictionary.md`](docs/data-dictionary.md) — granos y campos.
 - [`docs/quality-checks.md`](docs/quality-checks.md) — 12 checks y gate.
 - [`docs/market-findings-2025.md`](docs/market-findings-2025.md) — hallazgos 2025.
+- [`docs/market-findings-2024-2025.md`](docs/market-findings-2024-2025.md) — hallazgos combinados.
 - [`docs/v1.1-plan.md`](docs/v1.1-plan.md) — cohortes 2024–2025, conteos y alcance.
 - [`docs/alerts.md`](docs/alerts.md) — digest y Power Automate.
 - [`docs/release.md`](docs/release.md) — bundle y tag local.
