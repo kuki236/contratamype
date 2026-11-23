@@ -137,13 +137,13 @@
 - [x] Bulk 2024 descargado y auditado: 46,328 cohorte; SHA `9f50c844…`.
 - [x] Pipeline multi-input con cohortes 2024/2025, `snapshot_year` y MYPE por año.
 - [x] Web/API con filtro Año (Todos/2025/2024) y default todos.
-- [ ] Dashboard con selector de año, refresh y capturas.
+- [x] Dashboard con selector de año, refresh y capturas.
 - [x] Adaptador Gemini opcional usando `.env` (introducción; fallback sin key).
-- [ ] Release `v1.1.0` con bundle, checksums y tag.
+- [x] Release `v1.1.0` con bundle, checksums y tag.
 
 **Datos:** cohorte fusionada **123,931** (2024: 64,783; 2025: 59,148); **MYPE 58,380 (47.1%)**; quality 7 pass / 5 warn / 0 fail. Detalle en `docs/v1.1-plan.md`.
 
 **E2E del checkpoint:**
-- Pipeline **30 fast + 1 slow**; API real 123,931/58,380; Playwright **23/23**; PBIP 0/0 y capturas (en cierre).
+- Pipeline **31 tests** (30 fast + 1 slow); API real 123,931/58,380; Playwright **23/23**; PBIP 0/0, selector de año y capturas con ambos años.
 
 **Criterio:** la web y el dashboard permiten comparar 2024 y 2025 sin duplicar la regla MYPE ni romper v1.0.0.
