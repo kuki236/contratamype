@@ -9,6 +9,7 @@ import duckdb
 from fastapi import FastAPI, HTTPException, Query
 
 from api.checklist import build_checklist
+from api.config import COHORT_YEARS
 from api.db import Connection, fetch_all, fetch_one, money
 from api.schemas import (
     AmountStats,
@@ -35,7 +36,7 @@ app = FastAPI(
     description=(
         "API de solo lectura sobre DuckDB. La etiqueta mype_fit se lee de la base; "
         "la API no recalcula la regla MYPE. Sin parámetro year, los endpoints "
-        "agregan todas las cohortes disponibles."
+        "agregan la cohorte 2024-2025; las filas históricas quedan fuera."
     ),
 )
 
@@ -80,9 +81,10 @@ def _like_pattern(text: str) -> str:
 
 
 def _year_filter(year: int | None) -> tuple[str, list[Any]]:
-    """SQL predicate for an optional cohort filter; ``None`` means every cohort."""
+    """SQL predicate for the cohort scope; ``None`` means the 2024-2025 cohort."""
     if year is None:
-        return "TRUE", []
+        placeholders = ", ".join("?" for _ in COHORT_YEARS)
+        return f"segmentation_year IN ({placeholders})", list(COHORT_YEARS)
     return "segmentation_year = ?", [year]
 
 
@@ -249,14 +251,16 @@ def meta(
         """,
         parameters,
     )
+    cohort_condition, cohort_parameters = _year_filter(None)
     year_rows = fetch_all(
         connection,
-        """
+        f"""
         SELECT DISTINCT segmentation_year AS value
         FROM tenders
-        WHERE segmentation_year IS NOT NULL
+        WHERE {cohort_condition}
         ORDER BY 1
         """,
+        cohort_parameters,
     )
     return Meta(
         years=[int(row["value"]) for row in year_rows],

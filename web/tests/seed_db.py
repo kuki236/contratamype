@@ -416,6 +416,30 @@ TENDERS = [
         "dates_valid": True,
         "period_start_eq_end": False,
     },
+    {
+        "ocid": "ocds-test-0013",
+        "title": "Compra histórica de 2023",
+        "description": (
+            "Actualización histórica de 2023 que no pertenece a las cohortes 2024-2025."
+        ),
+        "category": "services",
+        "method": "Contratación Directa",
+        "amount_pen": _money(5000),
+        "currency": "PEN",
+        "published_date": _d("2023-11-01"),
+        "tender_start": _d("2023-11-10"),
+        "tender_end": _d("2023-11-20"),
+        "status": "Adjudicado",
+        "buyer_id": None,
+        "buyer_name": "Entidad Histórica de Prueba",
+        "department": "TUMBES",
+        "department_code": "24",
+        "segmentation_id": "2023-11",
+        "segmentation_year": 2023,
+        "mype_fit": False,
+        "dates_valid": True,
+        "period_start_eq_end": False,
+    },
 ]
 
 # Deterministic filler used only by pagination regressions: it must not match the

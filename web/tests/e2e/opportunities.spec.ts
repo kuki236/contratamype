@@ -9,6 +9,7 @@ test.describe("búsqueda de oportunidades", () => {
     ).toBeVisible();
     await expect(page.getByTestId("opportunity-card")).toHaveCount(8);
     await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
 
     const laptopCard = page
       .getByTestId("opportunity-card")
@@ -21,6 +22,7 @@ test.describe("búsqueda de oportunidades", () => {
     await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
     await expect(page.getByText("Compra de laptops para capacitación")).toBeVisible();
     await expect(page.getByText("Compra histórica de 2024")).toHaveCount(0);
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
   });
 
   test("filtra por año y conserva Todos por defecto", async ({ page }) => {
@@ -32,6 +34,10 @@ test.describe("búsqueda de oportunidades", () => {
     await expect(page.getByText("Procesos 2024–2025", { exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { level: 2, name: "8 oportunidades" })).toBeVisible();
     await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
+    await expect(
+      page.getByLabel("Departamento").locator("option", { hasText: "TUMBES" }),
+    ).toHaveCount(0);
 
     await yearSelect.selectOption("2024");
     await page.getByRole("button", { name: "Buscar oportunidades" }).click();
@@ -39,19 +45,28 @@ test.describe("búsqueda de oportunidades", () => {
     await expect(page).toHaveURL(/year=2024/);
     await expect(page.getByRole("heading", { level: 2, name: "1 oportunidad" })).toBeVisible();
     await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
     await expect(page.getByText("Procesos 2024", { exact: true })).toBeVisible();
 
     await page.goto("/?year=2025&mype_only=0");
     await expect(page.getByRole("heading", { level: 2, name: "36 oportunidades" })).toBeVisible();
     await expect(page.getByText("Compra histórica de 2024")).toHaveCount(0);
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
 
     await page.goto("/?year=2024&mype_only=0");
     await expect(page.getByRole("heading", { level: 2, name: "1 oportunidad" })).toBeVisible();
     await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
 
     await page.goto("/?mype_only=0&page=2");
     await expect(page.getByRole("heading", { level: 2, name: "37 oportunidades" })).toBeVisible();
     await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
+
+    await page.goto("/?q=histórica&mype_only=0");
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
+    await expect(page.getByText("Compra histórica de 2024")).toBeVisible();
+    await expect(page.getByText("Compra histórica de 2023")).toHaveCount(0);
   });
 
   test("filtra por departamento, categoría y monto", async ({ page }) => {

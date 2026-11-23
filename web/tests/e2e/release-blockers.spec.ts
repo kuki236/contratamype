@@ -212,6 +212,8 @@ test.describe("contrato de la API por año", () => {
     const meta = await (await request.get(`${base}/meta`)).json();
     expect(meta.years).toEqual([2024, 2025]);
     expect(meta.departments).toContain("LIMA");
+    expect(meta.departments).not.toContain("TUMBES");
+    expect(meta.methods).not.toContain("Contratación Directa");
 
     const meta2024 = await (await request.get(`${base}/meta?year=2024`)).json();
     expect(meta2024.years).toEqual([2024, 2025]);
@@ -222,6 +224,9 @@ test.describe("contrato de la API por año", () => {
 
     const allStats = await (await request.get(`${base}/stats`)).json();
     expect(allStats).toMatchObject({ year: null, total: 37, mype_opportunities: 8 });
+    expect(
+      allStats.by_department.some((item: { department: string }) => item.department === "TUMBES"),
+    ).toBe(false);
 
     const stats2024 = await (await request.get(`${base}/stats?year=2024`)).json();
     expect(stats2024).toMatchObject({ year: 2024, total: 1, mype_opportunities: 1 });
@@ -234,6 +239,21 @@ test.describe("contrato de la API por año", () => {
 
     const all = await (await request.get(`${base}/opportunities?page_size=100`)).json();
     expect(all.total).toBe(37);
+    expect(
+      all.items.every(
+        (item: { segmentation_year: number }) =>
+          item.segmentation_year === 2024 || item.segmentation_year === 2025,
+      ),
+    ).toBe(true);
+
+    const historical = await (
+      await request.get(`${base}/opportunities?q=histórica&page_size=100`)
+    ).json();
+    expect(historical.total).toBe(1);
+    expect(historical.items[0]).toMatchObject({
+      ocid: "ocds-test-0010",
+      segmentation_year: 2024,
+    });
 
     const only2024 = await (await request.get(`${base}/opportunities?year=2024`)).json();
     expect(only2024.total).toBe(1);

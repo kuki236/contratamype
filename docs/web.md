@@ -1,6 +1,6 @@
 # Web app y API de ContrataMYPE
 
-> **Alcance:** v1.1 multi-cohorte (2024 + 2025): búsqueda, detalle, estados vacíos, checklist/PDF y E2E con datos sembrados, con filtro de año y agregados por defecto sobre todas las cohortes. Incluye la parte visible de Fase 5 (explicador por plantilla, citas de campos y disclaimer). El adaptador Gemini queda preparado como punto de extensión, no implementado.
+> **Alcance:** v1.1 multi-cohorte (2024 + 2025): búsqueda, detalle, estados vacíos, checklist/PDF y E2E con datos sembrados, con filtro de año y agregados por defecto sobre la cohorte 2024–2025. Incluye la parte visible de Fase 5 (explicador por plantilla, citas de campos y disclaimer). El adaptador Gemini queda preparado como punto de extensión, no implementado.
 >
 > **Ruta local del producto:** Next.js en `web/` → API FastAPI read-only en `api/` → DuckDB del pipeline en `data/processed/contratamype.duckdb`.
 
@@ -96,18 +96,19 @@ Base: `http://127.0.0.1:8000`. Todo es `GET`, sin autenticación y sin escritura
 | Endpoint | Parámetros | Respuesta |
 |---|---|---|
 | `/health` | — | `{ "status": "ok" }`; ejecuta `SELECT 1 FROM tenders LIMIT 1` y devuelve 503 genérico si la tabla o la DuckDB no están disponibles. |
-| `/meta` | `year` (opcional, 2000–2100; sin valor = todas las cohortes) | `years` (todas las cohortes presentes, ordenadas), departamentos, categorías, métodos, estados y rango de montos positivos del filtro pedido. |
-| `/opportunities` | `q` (máx. 200), `department`, `category`, `method`, `min_amount`, `max_amount`, `status`, `year` (opcional; sin valor = todas), `mype_only` (false), `page` (1–100000), `page_size` (20, máx. 100) | `items`, `total`, `page`, `page_size`, `pages`. Búsqueda por título, descripción, entidad u OCID. Orden: publicación descendente, OCID. |
+| `/meta` | `year` (opcional, 2000–2100; sin valor = cohorte 2024–2025) | `years` (solo cohortes 2024/2025 presentes, ordenadas), departamentos, categorías, métodos, estados y rango de montos positivos del filtro pedido. |
+| `/opportunities` | `q` (máx. 200), `department`, `category`, `method`, `min_amount`, `max_amount`, `status`, `year` (opcional; sin valor = cohorte 2024–2025), `mype_only` (false), `page` (1–100000), `page_size` (20, máx. 100) | `items`, `total`, `page`, `page_size`, `pages`. Búsqueda por título, descripción, entidad u OCID. Orden: publicación descendente, OCID. |
 | `/opportunities/{ocid}` | — | Ficha con `buyer`, `awards`, `contracts` (cada contrato trae `award_linked`) y `data_quality` (descripción faltante, monto 0, inicio=fin, awards/contratos ausentes, proveedor o adjudicación sin vínculo). 404 si no existe. |
-| `/stats` | `year` (opcional; sin valor = todas) | `year` (`null` si agrega todas), totales, MYPE, monto 0, descripción faltante, inicio=fin, mediana, y agregados por departamento, categoría y método. |
+| `/stats` | `year` (opcional; sin valor = cohorte 2024–2025) | `year` (`null` si agrega la cohorte), totales, MYPE, monto 0, descripción faltante, inicio=fin, mediana, y agregados por departamento, categoría y método. |
 | `/checklist/{ocid}` | — | Checklist JSON generado solo con campos oficiales: proceso, fuente, 9 pasos, advertencias y disclaimer. 404 si no existe. |
 
 Decisiones de contrato:
 
-- **Año:** `year` es un entero opcional entre 2000 y 2100. Omitirlo significa **todas las cohortes** (2024 + 2025); un valor explícito filtra `tenders.segmentation_year`. Aplica a `/meta`, `/opportunities` y `/stats`; detalle, checklist y PDF no filtran por año porque el OCID es único.
-- **`Meta.years`** reemplaza a `cohort_year`: siempre lista las cohortes presentes en la base, ordenadas ascendente, incluso cuando la consulta pide un año. La web deriva de ahí las opciones del selector.
-- **`Stats.year`** repite el filtro aplicado y es `null` cuando se agregaron todas las cohortes.
-- Conteos esperados de la base real v1.1 (ambas cohortes son disjuntas): 2024 = **46,328**, 2025 = **59,141**, todas = **105,469**. Las cohortes se suman; no hay solapamiento por OCID.
+- **Alcance de cohortes:** la API define `COHORT_YEARS = (2024, 2025)` en `api/config.py`. Sin `year`, `/meta`, `/opportunities` y `/stats` aplican `segmentation_year IN (2024, 2025)`; un `year` explícito usa igualdad. Las filas históricas 2013–2023 que pueda contener la DuckDB fusionada quedan fuera de los conteos, la búsqueda y los metadatos por defecto. No se sirve una serie histórica.
+- **Año:** `year` es un entero opcional entre 2000 y 2100. Aplica a `/meta`, `/opportunities` y `/stats`; detalle, checklist y PDF no filtran por año porque el OCID es único.
+- **`Meta.years`** reemplaza a `cohort_year`: lista solo las cohortes 2024/2025 presentes en la base, ordenadas ascendente, incluso cuando la consulta pide un año. La web deriva de ahí las opciones del selector.
+- **`Stats.year`** repite el filtro aplicado y es `null` cuando se agregó la cohorte 2024–2025.
+- Conteos esperados de la base real v1.1 (ambas cohortes son disjuntas): 2024 = **46,328**, 2025 = **59,141**, cohorte por defecto = **105,469**. Las cohortes se suman; no hay solapamiento por OCID. Las filas 2013–2023 no suman.
 - `mype_only` en la API es `false` por defecto para permitir explorar toda la cohorte. La UI arranca con **Solo compatibles MYPE**; el valor viaja explícito en la URL (`mype_only=1|0`).
 - Los montos viajan como números JSON para presentación. En DuckDB son `DECIMAL(18,2)`; a esta escala (máximo ~S/ 1,134 millones) los centavos se representan sin pérdida en un double.
 - La API no reimplementa el umbral, las categorías objetivo ni los departamentos objetivo de la regla MYPE. Solo expone `tenders.mype_fit`.
@@ -122,7 +123,7 @@ Decisiones de contrato:
 ## 6. UI
 
 - **Inicio (`/`)**: hero, formulario GET accesible, tarjetas de resultados con etiqueta MYPE, paginación, estado vacío y sección “Cómo leer una oportunidad”.
-  - **Año**: selector con **Todos** (default), **2025** y **2024**, generado desde `meta.years` en orden descendente. El valor viaja como `year=YYYY`; **Todos** omite el parámetro. Se conserva en paginación, en “Ver todas las oportunidades”, en “Ir a la página 1” y en el envío del formulario.
+  - **Año**: selector con **Todos** (default), **2025** y **2024**, generado desde `meta.years` en orden descendente. `meta.years` ya viene limitado a las cohortes 2024/2025, así que los años históricos no aparecen como opción. El valor viaja como `year=YYYY`; **Todos** omite el parámetro. Se conserva en paginación, en “Ver todas las oportunidades”, en “Ir a la página 1” y en el envío del formulario.
   - El hero muestra el conteo del filtro activo: **Procesos 2024–2025** en Todos, **Procesos 2025** o **Procesos 2024** con año explícito. La etiqueta de cohorte y el pie del formulario también se derivan de `meta.years`; no hay un año fijo en el copy.
   - `q` se limita a 200 caracteres en el input y en `parseFilters`; no se propaga a la API un valor que provoque 422.
   - Los montos inválidos (`?min_amount=abc`) se ignoran al construir la query y no se copian a los enlaces de paginación.
@@ -166,15 +167,17 @@ El seed incluye:
 - departamento desconocido y entidad ausente;
 - filas suficientes para filtros por departamento, categoría, monto, texto, estado y MYPE;
 - una fila 2024 (`ocds-test-0010`) que aparece con **Todos** y con `year=2024`, pero no con `year=2025`;
+- una fila histórica 2023 (`ocds-test-0013`, departamento TUMBES) que la API excluye siempre del universo 2024–2025, incluso cuando la base la contiene;
 - 25 filas no-MYPE deterministas (`ocds-test-bulk-01..25`) que solo existen para probar paginación y normalización de montos sin alterar los conteos de los demás tests;
 - casos que producen estado vacío.
 
-El fixture tiene **37 filas**: 36 de 2025 y 1 de 2024. Conteos exactos que usan los tests: **Todos = 37**, **2025 = 36**, **2024 = 1**; compatibles MYPE = **8** (7 de 2025 + 1 de 2024).
+El fixture tiene **38 filas en `tenders`**: 37 de la cohorte (36 de 2025 + 1 de 2024) y 1 histórica de 2023 que debe quedar fuera. Conteos exactos que usan los tests: **Todos = 37**, **2025 = 36**, **2024 = 1**; compatibles MYPE = **8** (7 de 2025 + 1 de 2024). TUMBES y el método “Contratación Directa” solo existen en la fila 2023, así que su ausencia prueba el alcance de cohortes.
 
 Cobertura actual (23 tests, 1 worker):
 
-- búsqueda por texto y badge MYPE (8 resultados MYPE por defecto, con la fila 2024 incluida);
+- búsqueda por texto y badge MYPE (8 resultados MYPE por defecto, con la fila 2024 incluida y la 2023 excluida);
 - filtro de año: “Todos” por defecto, opciones 2025/2024, conteos exactos y fila 2024 visible solo con Todos o `year=2024`;
+- exclusión de la fila histórica 2023 en Todos, 2024, 2025, paginación, búsqueda por texto y agregados;
 - filtros por departamento, categoría y rango de monto, con la fila 2024 incluida en Todos y excluida en `year=2025`;
 - estado vacío con enlace para limpiar;
 - estado vacío MYPE con enlace “Ver todas las oportunidades” que conserva los filtros y el año;
@@ -193,7 +196,7 @@ Cobertura actual (23 tests, 1 worker):
 - PDF del caso incompleto: monto, categoría traducida, fuentes y disclaimer verificados sobre el contenido real del PDF;
 - explicador con “Qué revisar”, “Datos faltantes”, citas y disclaimer;
 - PDF: `%PDF`, `application/pdf`, `attachment` y tamaño;
-- contrato de la API por año: `/meta` expone `years` y filtros por cohorte; `/stats` y `/opportunities` devuelven 37/36/1 para Todos/2025/2024 y `Stats.year = null` en Todos.
+- contrato de la API por año: `/meta` expone `years` solo con 2024/2025 y excluye TUMBES/“Contratación Directa”; `/stats` y `/opportunities` devuelven 37/36/1 para Todos/2025/2024, `Stats.year = null` en Todos, y `q=histórica` devuelve solo la fila 2024.
 
 Para sembrar manualmente:
 
@@ -244,13 +247,13 @@ Resultados de la verificación local (2026-11-22):
 - `npm run build`: compila; rutas dinámicas `/`, detalle, checklist y PDF.
 - `npm run format:check`: OK (incluye `next-env.d.ts` en `.prettierignore` porque Next lo regenera con CRLF en Windows).
 - `ruff format` / `ruff check` sobre `api/` y `web/tests/*.py`: OK.
-- Fixture determinista: 37 filas (36 de 2025 + 1 de 2024); `/stats` y `/opportunities` devuelven 37 en Todos, 36 con `year=2025` y 1 con `year=2024`; `mype_opportunities` = 8 en Todos.
-- La base real multi-cohorte no se usó para esta verificación: el pipeline de la rama estaba en reconstrucción durante la corrida. Los conteos esperados son 46,328 (2024) + 59,141 (2025) = 105,469; quedan pendientes de validar sobre la base fusionada. El contrato HTTP está verificado con el fixture.
+- Fixture determinista: 38 filas en `tenders` (37 de la cohorte: 36 de 2025 + 1 de 2024; 1 histórica de 2023 excluida). `/stats` y `/opportunities` devuelven 37 en Todos, 36 con `year=2025` y 1 con `year=2024`; `mype_opportunities` = 8 en Todos.
+- La base real multi-cohorte no se usó para esta verificación: el pipeline de la rama estaba en reconstrucción durante la corrida. La DuckDB fusionada puede contener filas 2013–2023; el alcance `COHORT_YEARS` las excluye de `/meta`, `/stats` y `/opportunities`. Los conteos esperados son 46,328 (2024) + 59,141 (2025) = 105,469; quedan pendientes de validar sobre la base fusionada. El contrato HTTP está verificado con el fixture.
 - Sin DuckDB, `/opportunities` y `/health` responden 503 con mensaje genérico; la ruta absoluta solo queda en el log del servidor.
 
 ## 10. Límites conocidos
 
-- **Base real multi-cohorte:** el fixture E2E ya cubre 2024/2025, pero la validación contra la DuckDB real de 105,469 procesos depende de la corrida del pipeline multi-input. La API expone en `years` las cohortes que encuentre y la UI genera el selector desde ahí; si una cohorte no está cargada, no aparece como opción, sin código específico por año.
+- **Alcance 2024–2025:** el fixture E2E cubre 2024/2025 y el pipeline real puede dejar filas históricas 2013–2023 en la DuckDB. La API y la web solo sirven las cohortes `COHORT_YEARS = (2024, 2025)`; los años históricos no aparecen en conteos, búsqueda ni selector. La validación contra la DuckDB real fusionada de 105,469 procesos depende de la corrida del pipeline multi-input.
 - **PostgreSQL diferido:** el adaptador PostgreSQL 17 queda fuera de v1.0 local porque el daemon de Docker no está disponible. La ruta implementada y verificada es la API read-only sobre DuckDB. El contrato HTTP permite sustituir la capa de datos sin tocar la web.
 - **Sin escritura ni cuentas:** no hay login, favoritos, alertas ni backoffice. La API es de solo lectura.
 - **`status` vacío en el bulk real:** la cohorte 2025 no trae estados de proceso en `tenders.status`. La API acepta `status`, pero la UI deshabilita el filtro y explica que la fuente no informa ese campo. El fixture sí trae estados para probar el contrato.
