@@ -207,12 +207,12 @@ def _release_notes(version: str, manifest: dict, quality: dict) -> str:
     summary = quality["summary"]
     return f"""# ContrataMYPE {version}
 
-Cohorte 2025 construida desde el bulk OCDS del OECE.
+Cohortes 2024 + 2025 construidas desde los bulks OCDS del OECE.
 
 ## Cifras
 
 - Actualizaciones procesadas: {counts["tenders"]:,}
-- Procesos en la cohorte 2025: {counts["cohort_records"]:,}
+- Procesos en las cohortes 2024 + 2025: {counts["cohort_records"]:,}
 - Oportunidades compatibles MYPE: {counts["mype_opportunities"]:,}
 - Compradores: {counts["buyers"]:,}
 - Proveedores: {counts["suppliers"]:,}
@@ -262,6 +262,7 @@ def build_release(
     dashboard_dir: Path,
     out_dir: Path,
     repo_root: Path = REPO_ROOT,
+    notes_file: Path | None = None,
 ) -> dict:
     artifacts_dir = Path(artifacts_dir)
     dashboard_dir = Path(dashboard_dir)
@@ -270,6 +271,13 @@ def build_release(
     manifest, quality, power_bi, screenshots = _validate_inputs(
         artifacts_dir, dashboard_dir, repo_root
     )
+
+    if notes_file is not None:
+        notes = Path(notes_file).read_text(encoding="utf-8")
+        if not notes.strip():
+            raise ValueError(f"release notes file is empty: {notes_file}")
+    else:
+        notes = _release_notes(version, manifest, quality)
 
     tmp_dir = out_dir.with_name(out_dir.name + ".tmp")
     if tmp_dir.exists():
@@ -297,7 +305,6 @@ def build_release(
             _copy(source, tmp_dir / "dashboard" / "screenshots" / source.name)
             copied.append(f"dashboard/screenshots/{source.name}")
 
-        notes = _release_notes(version, manifest, quality)
         (tmp_dir / "RELEASE_NOTES.md").write_text(notes, encoding="utf-8")
         copied.append("RELEASE_NOTES.md")
 
@@ -328,9 +335,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--artifacts", type=Path, default=REPO_ROOT / "artifacts" / "2025")
     parser.add_argument("--dashboard", type=Path, default=REPO_ROOT / "dashboard")
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument("--notes-file", type=Path, default=None)
     args = parser.parse_args(argv)
     out_dir = args.out or REPO_ROOT / "dist" / args.version
-    summary = build_release(args.version, args.artifacts, args.dashboard, out_dir)
+    summary = build_release(
+        args.version,
+        args.artifacts,
+        args.dashboard,
+        out_dir,
+        notes_file=args.notes_file,
+    )
     print(json.dumps(summary, ensure_ascii=False))
     return 0
 

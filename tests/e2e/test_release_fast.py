@@ -119,6 +119,34 @@ def test_release_bundle_is_complete_and_verifiable(tmp_path: Path) -> None:
 
 
 @pytest.mark.fast
+def test_release_bundle_uses_notes_file(tmp_path: Path) -> None:
+    artifacts, dashboard, repo = fake_inputs(tmp_path)
+    out = tmp_path / "dist" / "v1.1.1"
+    notes = tmp_path / "notes.md"
+    notes.write_text("# ContrataMYPE v1.1.1\n\nPatch notes.\n", encoding="utf-8")
+    build_release("v1.1.1", artifacts, dashboard, out, repo_root=repo, notes_file=notes)
+    assert (out / "RELEASE_NOTES.md").read_text(encoding="utf-8") == notes.read_text(
+        encoding="utf-8"
+    )
+
+
+@pytest.mark.fast
+def test_release_bundle_rejects_empty_notes_file(tmp_path: Path) -> None:
+    artifacts, dashboard, repo = fake_inputs(tmp_path)
+    notes = tmp_path / "notes.md"
+    notes.write_text("  \n", encoding="utf-8")
+    with pytest.raises(ValueError, match="release notes file is empty"):
+        build_release(
+            "v1.1.1",
+            artifacts,
+            dashboard,
+            tmp_path / "dist",
+            repo_root=repo,
+            notes_file=notes,
+        )
+
+
+@pytest.mark.fast
 def test_release_bundle_refuses_blocked_gate(tmp_path: Path) -> None:
     artifacts, dashboard, repo = fake_inputs(tmp_path, blocked=True)
     out = tmp_path / "dist" / "v1.0.0"
