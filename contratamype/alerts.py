@@ -15,6 +15,8 @@ from pathlib import Path
 
 import duckdb
 
+from contratamype.config import DEFAULT_COHORT_YEARS
+
 DIGEST_COLUMNS = [
     "ocid",
     "title",
@@ -60,11 +62,12 @@ def _rows(
     since: date,
     until: date | None,
     sent: dict[str, str],
-    cohort_year: int,
+    cohort_years: tuple[int, ...],
 ) -> list[dict]:
+    years = ", ".join(str(int(year)) for year in cohort_years)
     clauses = [
         "mype_fit = true",
-        f"segmentation_year = {int(cohort_year)}",
+        f"segmentation_year IN ({years})",
         "published_date >= ?",
     ]
     params: list[object] = [since]
@@ -107,7 +110,7 @@ def build_digest(
     state_path: Path,
     since: date,
     until: date | None = None,
-    cohort_year: int = 2025,
+    cohort_years: tuple[int, ...] = DEFAULT_COHORT_YEARS,
 ) -> dict:
     db_path = Path(db_path)
     out_dir = Path(out_dir)
@@ -120,7 +123,7 @@ def build_digest(
     _gate_open(Path(artifacts_dir))
     run_at = datetime.now(UTC).isoformat()
     state = _load_state(state_path)
-    rows = _rows(db_path, since, until, state["sent"], cohort_year)
+    rows = _rows(db_path, since, until, state["sent"], cohort_years)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     csv_path = out_dir / "alert_digest.csv"

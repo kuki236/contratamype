@@ -3,7 +3,7 @@
 ## 1. Qué hace
 
 `contratamype digest` lee la base del pipeline y genera un CSV/JSON con las
-oportunidades **nuevas** de la cohorte 2025 que cumplen `mype_fit = true`.
+oportunidades **nuevas** de las cohortes 2024–2025 que cumplen `mype_fit = true`.
 No recalcula la regla MYPE: usa la columna calculada por el pipeline.
 
 - Ventana: `--since` (obligatorio) y `--until` (opcional), sobre `published_date`.
@@ -20,7 +20,7 @@ python -m contratamype digest \
   --artifacts artifacts/2025 \
   --out artifacts/alerts \
   --state artifacts/alerts/state.json \
-  --since 2025-01-01
+  --since 2024-01-01
 ```
 
 Salida:
@@ -36,7 +36,7 @@ Salida:
 
 ## 3. Adaptador Power Automate (sin licencia confirmada)
 
-No hay licencia verificada, así que v1.0 usa el digest local y deja el flujo
+No hay licencia verificada, así que v1.1 usa el digest local y deja el flujo
 documentado. Cuando exista licencia:
 
 1. Programar el pipeline y el digest (Task Scheduler o Power Automate Desktop).
@@ -53,5 +53,11 @@ implementa el envío ni la baja: el adaptador debe incluir ambos en el correo.
 
 - El bulk es un snapshot; una oportunidad puede aparecer con fechas antiguas.
   La ventana usa `published_date`, no la fecha de ingesta.
-- Sin cuentas de usuario ni preferencias por región/rubro en v1.0.
+- Sin cuentas de usuario ni preferencias por región/rubro en v1.1.
 - El digest no sustituye la revisión de bases ni la asesoría legal.
+
+## 5. Evidencia v1.1
+
+- Primera corrida desde 2024-01-01: **58,380 enviados**.
+- Segunda corrida idéntica: **0 enviados**, estado con 58,380 OCIDs.
+- El digest incluye cohortes 2024/2025; `--cohort-year` es repetible para acotar.

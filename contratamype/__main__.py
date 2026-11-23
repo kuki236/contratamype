@@ -47,7 +47,13 @@ def main(argv: list[str] | None = None) -> int:
     digest_parser.add_argument("--state", type=Path, default=Path("artifacts/alerts/state.json"))
     digest_parser.add_argument("--since", type=date.fromisoformat, required=True)
     digest_parser.add_argument("--until", type=date.fromisoformat, default=None)
-    digest_parser.add_argument("--cohort-year", type=int, default=2025)
+    digest_parser.add_argument(
+        "--cohort-year",
+        type=int,
+        action="append",
+        default=None,
+        help="cohort year; repeat for several (default: 2024 and 2025)",
+    )
 
     args = parser.parse_args(argv)
 
@@ -59,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
             state_path=args.state,
             since=args.since,
             until=args.until,
-            cohort_year=args.cohort_year,
+            cohort_years=tuple(args.cohort_year) if args.cohort_year else DEFAULT_COHORT_YEARS,
         )
         print(json.dumps(summary, ensure_ascii=False, default=str))
         return 0
