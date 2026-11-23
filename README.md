@@ -154,7 +154,7 @@ con el seed determinista; el bulk nunca se sube al repo.
 - No se scrapea SEACE/OECE: se usan datos abiertos, API y bulk.
 - Los datos pueden tener duplicados, montos en 0, fechas incompletas y proveedores sin dirección; se reportan.
 - El dashboard y la web no reemplazan los portales oficiales ni los plazos publicados.
-- No hay cuentas de usuario ni pagos en v1.0.0.
+- No hay cuentas de usuario ni pagos en v1.1.0.
 
 ## Licencia y atribución
 

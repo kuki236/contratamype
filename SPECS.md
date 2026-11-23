@@ -1,7 +1,7 @@
 # SPECS — ContrataMYPE
 
-> **Versión:** v0.1.0 (auditoría de datos) → v1.0.0 (producto).
-> **Estado:** v1.0.0; cohorte 2025 y umbral MYPE de S/ 200,000 definidos con la auditoría.
+> **Versión:** v0.1.0 (auditoría de datos) → v1.0.0 (producto) → v1.1.0 (cohortes 2024–2025).
+> **Estado:** v1.1.0; cohortes 2024/2025 y umbral MYPE de S/ 200,000 definidos con la auditoría.
 > **Fuente:** OECE — Portal de Contrataciones Abiertas (OCDS), datos abiertos CC BY 4.0.
 
 ## 1. Problema
@@ -55,6 +55,7 @@ Las MYPEs peruanas no acceden a compras públicas por tres barreras: no encuentr
 ### Ventana
 - **Auditoría 2025:** 124,538 actualizaciones; cohorte `dataSegmentation` 2025 = **59,141 procesos**.
 - **v1.0.0:** cohorte 2025 (59,141). Los 124,538 se cargan con `segmentation_year` para búsqueda/historia, pero el dashboard y el buscador filtran 2025 por defecto.
+- **v1.1.0:** cohortes 2024 + 2025 (123,931; 58,380 MYPE), con filtro de año en web/API y dashboard; ver [`docs/v1.1-plan.md`](v1.1-plan.md).
 - **2024–2025:** v1.1; requiere el bulk 2024 y deduplicar OCIDs entre snapshots.
 - No se promete 2018–2025.
 

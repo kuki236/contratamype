@@ -1,4 +1,7 @@
-# Arquitectura — ContrataMYPE v1.0.0
+# Arquitectura — ContrataMYPE v1.1.0
+
+Cohortes 2024 + 2025: el pipeline acepta dos snapshots, deduplica OCIDs y
+conserva las filas cross-year; la web/API y el dashboard filtran por año.
 
 ## 1. Vista general
 

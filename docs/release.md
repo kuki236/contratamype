@@ -1,21 +1,23 @@
-# Release local — ContrataMYPE v1.0.0
+# Release local — ContrataMYPE v1.1.0
 
-El repositorio es local y todavía no tiene remoto. El release se construye como
-un bundle verificable en `dist/v1.0.0/` y se etiqueta en Git. Cuando exista
-remoto, se publican los mismos archivos como assets.
+El repositorio está publicado en GitHub (`kuki236/contratamype`). El release se
+construye como un bundle verificable en `dist/v1.1.0/` y se publica como assets
+del tag. El bundle incluye las cohortes 2024 + 2025.
 
 ## 1. Prerrequisitos
 
-- Bulk 2025 en `data/raw/ocds/2025.jsonl.gz` (gitignored).
+- Bulks 2024 y 2025 en `data/raw/ocds/` (gitignored).
 - Entorno Python: `.venv` con `pip install -e ".[dev]"`.
 - Power BI Desktop para refrescar/validar el PBIP y capturar pantallas.
 - Node 24 para la web.
+- `gh` autenticado para publicar el release.
 
 ## 2. Secuencia
 
 ```powershell
-# 1. Pipeline real
+# 1. Pipeline real (dos snapshots)
 python -m contratamype run `
+  --input data/raw/ocds/2024.jsonl.gz `
   --input data/raw/ocds/2025.jsonl.gz `
   --artifacts artifacts/2025 `
   --db data/processed/contratamype.duckdb
@@ -24,13 +26,15 @@ python -m contratamype run `
 pytest -m "fast or slow"
 
 # 3. Bundle
-python scripts/build_release.py --version v1.0.0
+python scripts/build_release.py --version v1.1.0
 
 # 4. Verificar el bundle (exit 1 si algo falla)
-python scripts/verify_release.py --root dist/v1.0.0
+python scripts/verify_release.py --root dist/v1.1.0
 
-# 5. Tag local
-git tag -a v1.0.0 -m "ContrataMYPE v1.0.0"
+# 5. Tag y release
+git tag -a v1.1.0 -m "ContrataMYPE v1.1.0"
+git push origin v1.1.0
+gh release create v1.1.0 --title "ContrataMYPE v1.1.0" --notes-file dist/v1.1.0/RELEASE_NOTES.md
 ```
 
 `build_release.py` valida y verifica los artefactos del pipeline antes de
@@ -55,7 +59,7 @@ El bundle **no** incluye el bulk crudo, la base DuckDB ni secretos.
 
 - [ ] `pytest -m "fast or slow"` verde.
 - [ ] Gate abierto (0 fails) y `run_manifest.json` con SHA del bulk válido.
-- [ ] `scripts/verify_release.py --root dist/v1.0.0` retorna 0 y `checksums_verified` cubre todo el bundle.
+- [ ] `scripts/verify_release.py --root dist/v1.1.0` retorna 0 y `checksums_verified` cubre todo el bundle.
 - [ ] Web: búsqueda, detalle, checklist/PDF y estado vacío probados con Playwright.
 - [ ] Power BI: `powerbi-report-author validate` 0/0 y capturas de ambas páginas.
 - [ ] Digest real: primera corrida envía, segunda envía 0.
