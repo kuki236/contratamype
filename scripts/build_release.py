@@ -39,6 +39,7 @@ DOC_FILES = (
     "docs/architecture.md",
     "docs/data-profile-2025.md",
     "docs/cohort-2025.json",
+    "docs/cohort-2024.json",
     "docs/quality-checks.md",
     "docs/market-findings-2025.md",
     "docs/market-findings-2024-2025.md",
