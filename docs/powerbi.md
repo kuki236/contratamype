@@ -210,7 +210,7 @@ Resultado del último run:
     "result": "succeeded",
     "errorCount": 0,
     "warningCount": 0,
-    "reportPath": "C:\\Users\\sebas\\Desktop\\practicas\\projects\\contratamype\\dashboard\\ContrataMYPE.Report"
+    "reportPath": "dashboard/ContrataMYPE.Report"
   }
 }
 ```
