@@ -136,12 +136,12 @@
 
 - [x] Bulk 2024 descargado y auditado: 46,328 cohorte; SHA `9f50c844…`.
 - [ ] Pipeline multi-input con cohortes 2024/2025, `snapshot_year` y MYPE por año.
-- [ ] Web/API con filtro Año (Todos/2025/2024) y default todos.
+- [x] Web/API con filtro Año (Todos/2025/2024) y default todos.
 - [ ] Dashboard con selector de año, refresh y capturas.
 - [ ] Adaptador Gemini opcional usando `.env`.
 - [ ] Release `v1.1.0` con bundle, checksums y tag.
 
-**Datos:** cohortes disjuntas; 46,328 + 59,141 = **105,469 OCIDs únicos**. Detalle en `docs/v1.1-plan.md`.
+**Datos:** cohorte fusionada **123,931** (2024: 64,783; 2025: 59,148); **MYPE 58,380 (47.1%)**. Detalle en `docs/v1.1-plan.md`.
 
 **E2E del checkpoint:**
 - Pipeline fast/slow con ambos bulk y MYPE exacto por año; Playwright con seed 2024/2025; PBIP 0/0 y capturas.
