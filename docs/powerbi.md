@@ -301,9 +301,13 @@ No se publica en Power BI Service en v1.1. El PBIP es local.
 
 ### PBIX
 
-El binario está disponible en `dashboard/ContrataMYPE.pbix` (39.4 MB),
-exportado el 23/11/2026 e incluido en el repositorio y en el release v1.1.0.
-Se abre con Power BI Desktop; el PBIP sigue siendo la fuente editable.
+El binario se publica como asset del release, no en el repositorio. Descarga
+`ContrataMYPE.pbix` (39.4 MB, exportado el 23/11/2026) desde
+`https://github.com/tejedasebastian/contratamype/releases/latest/download/ContrataMYPE.pbix`
+o con `gh release download --pattern ContrataMYPE.pbix`. SHA-256:
+`9104966b0d175c55ee91d8db3e8daf18187fb0f76fcf2e3837f0a38e349dbd38`.
+Se abre con Power BI Desktop; el PBIP sigue siendo la fuente editable. El
+`.pbix` queda fuera de Git (`.gitignore`) y del historial.
 
 ## 8. Límites conocidos
 

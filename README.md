@@ -25,16 +25,31 @@ ContrataMYPE responde:
 2. **Analista/periodista** — dashboard de mercado y exploración.
 3. **Comprador/entidad** — vista read-only de mercado y competencia.
 
-## Qué incluye (v1.1.0)
+## Qué incluye (v1.1.1)
 
 - **Web app Next.js** con búsqueda por texto, región, categoría (rubro OCDS), monto, método y **año (Todos/2024/2025)**. El estado no viene informado en los bulk; la UI lo explica.
 - **Detalle de oportunidad** con entidad, objeto, valor, fechas, categoría y enlaces oficiales.
 - **MYPE fit** heurístico (monto > 0 + rubro + región), etiquetado como “compatible”, nunca como elegibilidad legal.
 - **Checklist/PDF** con pasos y documentos.
 - **Explicador** con plantilla determinista, citas y disclaimer; adaptador Gemini opcional solo para la introducción.
-- **Dashboard Power BI** con mercado 2024–2025, selector de año, región/rubro/monto/evolución y participación MYPE.
+- **Dashboard Power BI** con mercado 2024–2025, selector de año, región/rubro/monto/evolución y participación MYPE. El `.pbix` listo para abrir se descarga del [último release](https://github.com/tejedasebastian/contratamype/releases/latest/download/ContrataMYPE.pbix); no se versiona en Git.
 - **Alertas** por digest CSV/email y adaptador Power Automate (si hay licencia).
 - **Calidad de datos** con 12 validaciones, auditorías de cobertura y checksums.
+
+## Dashboard Power BI
+
+El binario `ContrataMYPE.pbix` (39.4 MB, datos embebidos) se publica como asset
+del release, no en el clon:
+
+```bash
+gh release download --repo tejedasebastian/contratamype --pattern ContrataMYPE.pbix
+```
+
+También se puede bajar directo desde
+[`releases/latest/download/ContrataMYPE.pbix`](https://github.com/tejedasebastian/contratamype/releases/latest/download/ContrataMYPE.pbix)
+(SHA-256 `9104966b0d175c55ee91d8db3e8daf18187fb0f76fcf2e3837f0a38e349dbd38`).
+Se abre con Power BI Desktop; el PBIP de `dashboard/` sigue siendo la fuente
+editable y el clon ya no arrastra el binario de 39 MB.
 
 ## Fuente de datos
 
@@ -90,7 +105,7 @@ como adaptador pendiente (ver `docs/architecture.md`).
 | `contratamype/` | Ingesta OCDS, normalización, DuckDB, 12 checks, exports y digest |
 | `api/` | API FastAPI read-only sobre DuckDB |
 | `web/` | Next.js App Router, búsqueda, detalle, checklist y PDF |
-| `dashboard/` | PBIP/PBIX y capturas de Power BI |
+| `dashboard/` | PBIP, capturas y script de build (el `.pbix` se descarga del release) |
 | `tests/e2e/` | E2E de pipeline, alertas y release |
 | `tools/` | Auditorías y muestras reproducibles |
 | `docs/` | Decisiones, diccionario, calidad, hallazgos y límites |
@@ -154,7 +169,7 @@ con el seed determinista; el bulk nunca se sube al repo.
 - No se scrapea SEACE/OECE: se usan datos abiertos, API y bulk.
 - Los datos pueden tener duplicados, montos en 0, fechas incompletas y proveedores sin dirección; se reportan.
 - El dashboard y la web no reemplazan los portales oficiales ni los plazos publicados.
-- No hay cuentas de usuario ni pagos en v1.1.0.
+- No hay cuentas de usuario ni pagos en v1.1.1.
 
 ## Licencia y atribución
 

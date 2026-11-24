@@ -31,7 +31,7 @@ ContrataMYPE answers:
 2. **Analyst/journalist** — market dashboard and exploration.
 3. **Buyer/entity** — read-only market and competition view.
 
-## What v1.1.0 includes
+## What v1.1.1 includes
 
 - **Next.js web app** with text, region, category (OCDS sector), amount, method and **year (All/2024/2025)** filters. Status is not reported in the bulks; the UI explains it.
 - **Opportunity detail** with buyer, object, value, dates, category and official links.
@@ -39,9 +39,24 @@ ContrataMYPE answers:
   never as legal eligibility.
 - **Checklist/PDF** with steps and documents.
 - **Explainer** with a deterministic template, citations and disclaimer; an optional Gemini adapter can rewrite only the introduction.
-- **Power BI dashboard** with the 2024–2025 market, year selector, region/category/amount/evolution and MYPE participation.
+- **Power BI dashboard** with the 2024–2025 market, year selector, region/category/amount/evolution and MYPE participation. The ready-to-open `.pbix` is downloaded from the [latest release](https://github.com/tejedasebastian/contratamype/releases/latest/download/ContrataMYPE.pbix); it is not versioned in Git.
 - **Alerts** via CSV/email digest and a Power Automate adapter (license permitting).
 - **Data quality** with 12 checks, coverage audits and checksums.
+
+## Power BI dashboard
+
+The `ContrataMYPE.pbix` binary (39.4 MB, embedded data) ships as a release
+asset, not in the clone:
+
+```bash
+gh release download --repo tejedasebastian/contratamype --pattern ContrataMYPE.pbix
+```
+
+Or download it directly from
+[`releases/latest/download/ContrataMYPE.pbix`](https://github.com/tejedasebastian/contratamype/releases/latest/download/ContrataMYPE.pbix)
+(SHA-256 `9104966b0d175c55ee91d8db3e8daf18187fb0f76fcf2e3837f0a38e349dbd38`).
+Open it with Power BI Desktop; the PBIP under `dashboard/` remains the editable
+source and the clone no longer carries the 39 MB binary.
 
 ## Data source
 
@@ -97,7 +112,7 @@ Power BI (PBIP/PBIX), Playwright, pytest, Ruff.
 | `contratamype/` | OCDS ingestion, normalization, DuckDB, 12 checks, exports and digest |
 | `api/` | Read-only FastAPI over DuckDB |
 | `web/` | Next.js App Router, search, detail, checklist and PDF |
-| `dashboard/` | Power BI PBIP/PBIX and screenshots |
+| `dashboard/` | Power BI PBIP, screenshots and build script (the `.pbix` comes from the release) |
 | `tests/e2e/` | Pipeline, alerts and release E2E |
 | `tools/` | Audits and reproducible samples |
 | `docs/` | Decisions, dictionary, quality, findings and limits |
@@ -147,7 +162,7 @@ the bulk is never uploaded.
 - Data may contain duplicates, zero amounts, incomplete dates and suppliers
   without an address; these are reported, not hidden.
 - The dashboard and web app do not replace the official portals or deadlines.
-- No user accounts or payments in v1.1.0.
+- No user accounts or payments in v1.1.1.
 
 ## License and attribution
 

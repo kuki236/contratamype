@@ -1,0 +1,2 @@
+# Power BI binaries are distributed as release assets, never diffed in git.
+*.pbix binary

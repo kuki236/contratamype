@@ -1,6 +1,6 @@
 # Release local — ContrataMYPE v1.1.1
 
-El repositorio está publicado en GitHub (`kuki236/contratamype`). El release se
+El repositorio está publicado en GitHub (`tejedasebastian/contratamype`). El release se
 construye como un bundle verificable en `dist/v1.1.1/` y se publica como assets
 del tag. El bundle incluye las cohortes 2024 + 2025.
 
@@ -49,7 +49,7 @@ reemplazar el bundle anterior; si algo falla, el bundle previo queda intacto.
 | Ruta | Contenido |
 |---|---|
 | `artifacts/` | `quality_report.json`, `run_manifest.json`, `checksums.sha256`, Parquet, `mype_opportunities.csv` |
-| `dashboard/` | PBIP/PBIX y capturas revisadas |
+| `dashboard/` | PBIP, capturas y script de build; el `.pbix` se sube como asset del release |
 | `docs/` | README, diccionario, arquitectura, perfil, límites |
 | `RELEASE_NOTES.md` | cifras y estado del gate |
 | `SHA256SUMS` | hash de cada archivo |
