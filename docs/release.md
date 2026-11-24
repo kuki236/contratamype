@@ -35,6 +35,9 @@ python scripts/verify_release.py --root dist/v1.1.1
 git tag -a v1.1.1 -m "ContrataMYPE v1.1.1"
 git push origin v1.1.1
 gh release create v1.1.1 --title "ContrataMYPE v1.1.1" --notes-file dist/v1.1.1/RELEASE_NOTES.md
+
+# 6. PBIX como asset (no se commitea; sale del export manual de Desktop)
+gh release upload v1.1.1 ruta\a\ContrataMYPE.pbix
 ```
 
 `build_release.py` valida y verifica los artefactos del pipeline antes de
